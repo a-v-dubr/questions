@@ -98,8 +98,6 @@ namespace Presentation
             _textBoxForQuestionInput = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeQuestionText };
             _textBoxForQuestionInput.TextChanged += TextBoxForQuestionInput_TextChanged;
             _textBoxForAnswerInput = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeAnswerText };
-            _textBoxForConnectionStringInput = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeConnectionString };
-            _textBoxForConnectionStringInput.TextChanged += TextBoxForConnectionStringInput_TextChanged;
             _textBoxForCreatingCategory = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeCategoryTitle };
             _textBoxForCreatingCategory.TextChanged += TextBoxForCreatingCategory_TextChanged;
 
@@ -121,8 +119,6 @@ namespace Presentation
             _buttonChooseAvailableQuestion.Click += ButtonChooseAvailableQuestion_Click;
             _buttonAcceptAnswerInput = new() { Visible = false, Text = ButtonTexts.PickAnswer };
             _buttonAcceptAnswerInput.Click += ButtonAcceptAnswerInput_Click;
-            _buttonCheckConnectionString = new() { Visible = false, Text = ButtonTexts.CheckDbConnection };
-            _buttonCheckConnectionString.Click += ButtonCheckConnectionString_Click;
 
             _comboBoxSetCorrectAnswer = new() { Visible = false };
             _comboBoxSetCorrectAnswer.SelectedIndexChanged += ComboBoxSetCorrectAnswer_SelectedIndexChanged;
@@ -146,8 +142,6 @@ namespace Presentation
             _flowLayoutPanel.Controls.Add(_buttonChooseAvailableQuestion);
             _flowLayoutPanel.Controls.Add(_buttonAcceptAnswerInput);
             _flowLayoutPanel.Controls.AddRange(_radioButtonsForPickingAnswer);
-            _flowLayoutPanel.Controls.Add(_buttonCheckConnectionString);
-            _flowLayoutPanel.Controls.Add(_textBoxForConnectionStringInput);
             _flowLayoutPanel.Controls.Add(_buttonChooseExistingCategory);
             _flowLayoutPanel.Controls.Add(_buttonCreateNewCategory);
             _flowLayoutPanel.Controls.Add(_comboBoxChooseAvailableCategory);
@@ -174,11 +168,9 @@ namespace Presentation
         private Button _buttonSaveCorrectAnswerIndex;
         private Button _buttonChooseAvailableQuestion;
         private Button _buttonAcceptAnswerInput;
-        private Button _buttonCheckConnectionString;
 
         private TextBox _textBoxForQuestionInput;
         private TextBox _textBoxForAnswerInput;
-        private TextBox _textBoxForConnectionStringInput; 
         private TextBox _textBoxForCreatingCategory;
 
         private ComboBox _comboBoxSetCorrectAnswer;

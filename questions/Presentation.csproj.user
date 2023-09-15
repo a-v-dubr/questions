@@ -7,8 +7,5 @@
     <Compile Update="FormQuestions.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FormQuestions.DbConnectionHelper.cs">
-      <SubType>Form</SubType>
-    </Compile>
   </ItemGroup>
 </Project>

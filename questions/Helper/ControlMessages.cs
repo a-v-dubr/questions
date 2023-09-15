@@ -18,7 +18,6 @@
             public const string AcceptCorrectAnswerInput = "Сохранить правильный ответ";
             public const string AnswerTheQuestion = "Ответить на вопрос";
             public const string PickAnswer = "Проверить ответ";
-            public const string CheckDbConnection = "Проверить подключение";
         }
 
         public static class LabelTexts
@@ -40,15 +39,10 @@
             public readonly static string WhenQuestionIsAvailable = "\nВопрос будет доступен {0}.";
             public const string CorrectAnswer = "Вы дали правильный ответ!";
             public const string WrongAnswer = "Вы дали неправильный ответ!";
-
-            public const string AskForConnectionStringInput = "Сохраняем новую строку подключения к базе данных";
-            public const string DbConnectionIsSuccessful = "Соединение успешно установлено.";
-            public const string DbConnectionFailed = "Невозможно подключиться, повторите ввод:";
         }
 
         public static class PlaceholderTexts
         {
-            public const string TypeConnectionString = "Введите строку подключения";
             public const string TypeCategoryTitle = "Введите название новой категории";
             public const string TypeQuestionText = "Введите вопрос";
             public const string TypeAnswerText = "Введите вариант ответа";

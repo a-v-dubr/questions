@@ -19,13 +19,11 @@ namespace Presentation
         private int _answerInputCounter = 0;
         private bool _questionCreatingInProcess = false;
 
-
         public FormQuestions()
         {
             InitializeComponent();
             InitializeControls();
 
-            TryEstablishDbConnection();
             _repo.RetrieveQuestionsFromDb();
             _categories = _repo.Select(q => q.QuestionCategory).Distinct().ToList();
         }

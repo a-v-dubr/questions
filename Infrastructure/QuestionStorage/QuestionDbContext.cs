@@ -8,13 +8,15 @@ namespace Infrastructure
     /// </summary>
     internal class QuestionDbContext : DbContext
     {
-        public DbSet<Question> Questions { get; set; }
-        public DbSet<Answer> Answers { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        private readonly static string _connectionString = $"Data Source={QuestionRepository.DbName}";
+
+        internal DbSet<Question> Questions { get; set; }
+        internal DbSet<Answer> Answers { get; set; }
+        internal DbSet<Category> Categories { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(DbHelper.ConnectionString);
+            optionsBuilder.UseSqlite(_connectionString);
         }
     }
 }

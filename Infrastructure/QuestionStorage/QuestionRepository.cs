@@ -9,6 +9,7 @@ namespace Infrastructure
     /// </summary>
     public class QuestionRepository : IEnumerable<Question>
     {
+        public const string DbName = "QuestionsDatabase.db";
         public readonly List<Category> Categories = new();
         private readonly List<Question> _questions = new();
 

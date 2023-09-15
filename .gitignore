@@ -2,3 +2,6 @@
 .vs/
 obj/
 bin/
+
+# DB files
+*.db
