@@ -202,7 +202,7 @@ namespace Presentation
                     _comboBoxSetCorrectAnswer.Text = string.Empty;
                     _questionCreatingInProcess = false;
                     HideControls(_comboBoxSetCorrectAnswer, _buttonSaveCorrectAnswerIndex);
-                    _labelUserActionsHelper.Text = LabelTexts.QuestionIsSaved + string.Format(LabelTexts.WhenQuestionIsAvailable, question.AvailableAt);
+                    _labelUserActionsHelper.Text = LabelTexts.QuestionIsSaved;
                 }
             }
             DisplayControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions);

@@ -7,9 +7,7 @@ namespace Presentation.DTOClasses
     /// Initializes a new instance of QuestionDTO class
     /// </summary>
     internal class QuestionDTO
-    {
-        public const Question.Repetitions DefaultRepetitionsCount = Question.Repetitions.DisplayInDay;
-
+    {        
         public string? QuestionText { get; set; }
         public DateTime AvailableAt { get; set; }
         public List<Answer> Answers { get; set; } = new();
@@ -20,9 +18,8 @@ namespace Presentation.DTOClasses
         public Question? MapDTO()
         {
             if (QuestionText is not null && AnswersTexts.Count == Question.AnswersCount && QuestionCategory is not null)
-            {
-                AvailableAt = QuestionRepetitionsHandler.WhenQuestionIsAvailable(DefaultRepetitionsCount);
-                var q = new Question(QuestionCategory, QuestionText!, AvailableAt);
+            {                
+                var q = Question.CreateQuestion(QuestionCategory, QuestionText);
 
                 for (int i = 0; i < Question.AnswersCount; i++)
                 {

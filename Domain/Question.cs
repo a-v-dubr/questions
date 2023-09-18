@@ -16,7 +16,8 @@ namespace Domain
             DisplayInYear,
             DisplayInMonth,
             DisplayInWeek,
-            DisplayInDay
+            DisplayInDay,
+            EnableAsCreated
         }
 
         [Key]
@@ -24,7 +25,7 @@ namespace Domain
         public int Id { get; private set; }
         public string Text { get; private set; }
         [NotMapped]
-        public Repetitions RepeateInPeriod { get; private set; } = Repetitions.DisplayInDay;
+        public Repetitions RepeateInPeriod { get; private set; } = Repetitions.EnableAsCreated;
         public DateTime AvailableAt { get; private set; }
         public List<Answer> Answers { get; private set; } = new();
         public int CategoryId { get; private set; }
@@ -32,6 +33,14 @@ namespace Domain
 
 #pragma warning disable
         private Question() { }
+
+        private Question(Category category, string questionText)
+        {
+            ValidateNotNullOrWhiteSpaceText(questionText);
+            QuestionCategory = category;
+            Text = questionText;
+            AvailableAt = DateTime.Now;
+        }
 #pragma warning restore
 
         public Question(Category category, string questionText, List<Answer> answers, DateTime availableAt)
@@ -41,14 +50,6 @@ namespace Domain
             QuestionCategory = category;
             Text = questionText;
             Answers = answers;
-            AvailableAt = availableAt;
-        }
-
-        public Question(Category category, string questionText, DateTime availableAt)
-        {
-            ValidateNotNullOrWhiteSpaceText(questionText);
-            QuestionCategory = category;
-            Text = questionText;
             AvailableAt = availableAt;
         }
 
@@ -113,6 +114,17 @@ namespace Domain
                 AvailableAt = question.AvailableAt;
                 RepeateInPeriod = question.RepeateInPeriod;
             }
+        }
+
+        /// <summary>
+        /// Creates question which is available at DateTime.Now
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="questionText"></param>
+        /// <returns></returns>
+        public static Question CreateQuestion(Category category, string questionText)
+        {
+            return new(category, questionText);
         }
     }
 
