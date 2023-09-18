@@ -325,7 +325,11 @@ namespace Presentation
         /// <param name="e"></param>
         private void ButtonChooseAvailableQuestion_Click(object sender, EventArgs e)
         {
-            _selectedQuestion = _repo.GetQuestionByRepositoryIndex(_comboBoxChooseAvailableQuestion.SelectedIndex)!;
+            
+            //_selectedQuestion = _repo.GetQuestionByRepositoryIndex(_comboBoxChooseAvailableQuestion.SelectedIndex)!;
+
+           _selectedQuestion = _repo.FirstOrDefault(q => q.Text == _comboBoxChooseAvailableQuestion.SelectedItem.ToString() && q.CategoryId == _selectedCategory.Id);
+
             if (_selectedQuestion is not null)
             {
                 _comboBoxChooseAvailableQuestion.Items.Clear();
