@@ -120,8 +120,6 @@ namespace Presentation
             _buttonAcceptAnswerInput = new() { Visible = false, Text = ButtonTexts.PickAnswer };
             _buttonAcceptAnswerInput.Click += ButtonAcceptAnswerInput_Click;
 
-            _comboBoxSetCorrectAnswer = new() { Visible = false };
-            _comboBoxSetCorrectAnswer.SelectedIndexChanged += ComboBoxSetCorrectAnswer_SelectedIndexChanged;
             _comboBoxChooseAvailableQuestion = new() { Visible = false };
             _comboBoxChooseAvailableQuestion.SelectedIndexChanged += ComboBoxChooseAvailableQuestion_SelectedIndexChanged;
             _comboBoxChooseAvailableCategory = new() { Visible = false };
@@ -136,7 +134,6 @@ namespace Presentation
             _flowLayoutPanel.Controls.Add(_textBoxForQuestionInput);
             _flowLayoutPanel.Controls.Add(_buttonAcceptQuestionText);
             _flowLayoutPanel.Controls.Add(_buttonAcceptAnswerText);
-            _flowLayoutPanel.Controls.Add(_comboBoxSetCorrectAnswer);
             _flowLayoutPanel.Controls.Add(_buttonSaveCorrectAnswerIndex);
             _flowLayoutPanel.Controls.Add(_comboBoxChooseAvailableQuestion);
             _flowLayoutPanel.Controls.Add(_buttonChooseAvailableQuestion);
@@ -147,7 +144,7 @@ namespace Presentation
             _flowLayoutPanel.Controls.Add(_comboBoxChooseAvailableCategory);
             _flowLayoutPanel.Controls.Add(_textBoxForCreatingCategory);
             _flowLayoutPanel.Controls.Add(_buttonSaveCategoryTitle);
-            _flowLayoutPanel.Controls.Add(_buttonAcceptCategoryChoice);            
+            _flowLayoutPanel.Controls.Add(_buttonAcceptCategoryChoice);
         }
 
         private const int _controlWidth = 400;
@@ -173,7 +170,6 @@ namespace Presentation
         private TextBox _textBoxForAnswerInput;
         private TextBox _textBoxForCreatingCategory;
 
-        private ComboBox _comboBoxSetCorrectAnswer;
         private ComboBox _comboBoxChooseAvailableQuestion;
         private ComboBox _comboBoxChooseAvailableCategory;
 

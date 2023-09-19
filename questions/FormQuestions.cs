@@ -140,7 +140,8 @@ namespace Presentation
                     if (UserInputIsValid(_textBoxForAnswerInput.Text))
                     {
                         _questionDTO.AnswersTexts.Add(_textBoxForAnswerInput.Text);
-                        _labelUserActionsHelper.Text += string.Format(LabelTexts.DisplayAnswersWhileAddingAnswers, _answerInputCounter + 1, _textBoxForAnswerInput.Text);
+                        _radioButtonsForPickingAnswer[_answerInputCounter] = new() { Enabled = false, Text = _textBoxForAnswerInput.Text };
+                        AddControlToFlowLayoutPanel(_radioButtonsForPickingAnswer[_answerInputCounter]);
                         _textBoxForAnswerInput.Clear();
                         _answerInputCounter++;
                     }
@@ -153,21 +154,36 @@ namespace Presentation
                     if (AnswerTextsAreUnique(_questionDTO.AnswersTexts))
                     {
                         _textBoxForAnswerInput.Clear();
-                        HideControls(_buttonAcceptAnswerText, _textBoxForAnswerInput);
-                        _comboBoxSetCorrectAnswer.Items.AddRange(_questionDTO.AnswersTexts.ToArray());
-                        _labelUserActionsHelper.Text = string.Format(LabelTexts.SetCorrectAnswer, _questionDTO.QuestionText);
                         _answerInputCounter = default;
-                        DisplayControls(_comboBoxSetCorrectAnswer);
+
+                        HideControls(_buttonAcceptAnswerText, _textBoxForAnswerInput);
+                        foreach (var r in _radioButtonsForPickingAnswer)
+                        {
+                            r.CheckedChanged += RadiobuttonToSetCorrectAnswer_CheckedChanged!;
+                            r.Enabled = true;
+                        }
+
+                        _labelUserActionsHelper.Text = string.Format(LabelTexts.SetCorrectAnswer, _questionDTO.QuestionText);
                     }
                     else
                     {
                         _labelErrorMessages.Text = LabelTexts.DuplicateQuestionsError;
                         _labelUserActionsHelper.Text = string.Format(LabelTexts.DisplayQuestionWhileAddingAnswers, _questionDTO.QuestionText);
                         _questionDTO.AnswersTexts.Clear();
+                        HideControls(_radioButtonsForPickingAnswer);
                         _answerInputCounter = default;
                         DisplayControls(_labelErrorMessages, _textBoxForAnswerInput, _buttonAcceptAnswerText);
                     }
                 }
+            }
+        }
+
+        private void RadiobuttonToSetCorrectAnswer_CheckedChanged(object sender, EventArgs e)
+        {
+            _input = (RadioButton)sender;
+            if (_input.Checked)
+            {
+                DisplayControls(_buttonSaveCorrectAnswerIndex);
             }
         }
 
@@ -188,9 +204,9 @@ namespace Presentation
         /// <param name="e"></param>
         private void ButtonSaveCorrectAnswerIndex_Click(object sender, EventArgs e)
         {
-            if (_questionDTO is not null)
+            if (_questionDTO is not null && _input is not null)
             {
-                _questionDTO.CorrectAnswerIndex = _comboBoxSetCorrectAnswer.SelectedIndex;
+                _questionDTO.CorrectAnswerIndex = _questionDTO.AnswersTexts.FindIndex(a => a == _input.Text);
                 var question = _questionDTO.MapDTO();
 
                 if (question is not null)
@@ -198,11 +214,10 @@ namespace Presentation
                     _repo.AddQuestionToRepository(question);
                     _repo.AddQuestionToDb(question);
 
-                    _comboBoxSetCorrectAnswer.Items.Clear();
-                    _comboBoxSetCorrectAnswer.Text = string.Empty;
                     _questionCreatingInProcess = false;
-                    HideControls(_comboBoxSetCorrectAnswer, _buttonSaveCorrectAnswerIndex);
-                    _labelUserActionsHelper.Text = LabelTexts.QuestionIsSaved;
+                    HideControls(_buttonSaveCorrectAnswerIndex);
+                    HideControls(_radioButtonsForPickingAnswer);
+                    _labelUserActionsHelper.Text = LabelTexts.QuestionIsSavedAndAvailable;
                 }
             }
             DisplayControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions);
@@ -325,26 +340,26 @@ namespace Presentation
         /// <param name="e"></param>
         private void ButtonChooseAvailableQuestion_Click(object sender, EventArgs e)
         {
-            
-            //_selectedQuestion = _repo.GetQuestionByRepositoryIndex(_comboBoxChooseAvailableQuestion.SelectedIndex)!;
-
-           _selectedQuestion = _repo.FirstOrDefault(q => q.Text == _comboBoxChooseAvailableQuestion.SelectedItem.ToString() && q.CategoryId == _selectedCategory.Id);
-
-            if (_selectedQuestion is not null)
+            if (_selectedCategory is not null)
             {
-                _comboBoxChooseAvailableQuestion.Items.Clear();
-                _comboBoxChooseAvailableQuestion.Text = string.Empty;
-                HideControls(_buttonChooseAvailableQuestion, _comboBoxChooseAvailableQuestion);
-                _labelUserActionsHelper.Text = _selectedQuestion.Text;
+                _selectedQuestion = _repo.FirstOrDefault(q => q.Text == _comboBoxChooseAvailableQuestion.SelectedItem.ToString() && q.CategoryId == _selectedCategory.Id);
 
-                for (int i = 0; i < Question.AnswersCount; i++)
+                if (_selectedQuestion is not null)
                 {
-                    _radioButtonsForPickingAnswer[i] = new() { Text = _selectedQuestion.Answers[i].Text };
-                    AddControlToFlowLayoutPanel(_radioButtonsForPickingAnswer[i]);
-                    _radioButtonsForPickingAnswer[i].CheckedChanged += RadioButtonsForPickingAnswer_CheckedChanged!;
-                }
+                    _comboBoxChooseAvailableQuestion.Items.Clear();
+                    _comboBoxChooseAvailableQuestion.Text = string.Empty;
+                    HideControls(_buttonChooseAvailableQuestion, _comboBoxChooseAvailableQuestion);
+                    _labelUserActionsHelper.Text = _selectedQuestion.Text;
 
-                DisplayControls(_radioButtonsForPickingAnswer);
+                    for (int i = 0; i < Question.AnswersCount; i++)
+                    {
+                        _radioButtonsForPickingAnswer[i] = new() { Text = _selectedQuestion.Answers[i].Text };
+                        AddControlToFlowLayoutPanel(_radioButtonsForPickingAnswer[i]);
+                        _radioButtonsForPickingAnswer[i].CheckedChanged += RadioButtonsForPickingAnswer_CheckedChanged!;
+                    }
+
+                    DisplayControls(_radioButtonsForPickingAnswer);
+                }
             }
         }
 

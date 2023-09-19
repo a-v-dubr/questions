@@ -14,6 +14,7 @@
             public const string AcceptCategoryChoice = "Выбрать эту категорию";
             public const string SaveCategoryTitle = "Сохранить название категории";
             public const string AcceptQuestionText = "Сохранить вопрос";
+            public const string FinishAddingAnswers = "Завершить ввод ответов";
             public const string AcceptAnswerText = "Сохранить вариант ответа";
             public const string AcceptCorrectAnswerInput = "Сохранить правильный ответ";
             public const string AnswerTheQuestion = "Ответить на вопрос";
@@ -35,7 +36,7 @@
             public readonly static string DisplayAnswersWhileAddingAnswers = "\nВариант ответа #{0}:\n{1}\n";
             public const string DuplicateQuestionsError = "Вы ввели повторяющиеся ответы. Начните заново.";
             public readonly static string SetCorrectAnswer = "Укажите правильный ответ на вопрос:\n{0}";
-            public const string QuestionIsSaved = "Вопрос сохранён!";
+            public const string QuestionIsSavedAndAvailable = "Вопрос сохранён и помещён в список доступных вопросов.";
             public readonly static string WhenQuestionIsAvailable = "\nВопрос будет доступен {0}.";
             public const string CorrectAnswer = "Вы дали правильный ответ!";
             public const string WrongAnswer = "Вы дали неправильный ответ!";
