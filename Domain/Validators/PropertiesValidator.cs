@@ -12,14 +12,19 @@
 
         internal static void ValidateAnswers(List<Answer> answers)
         {
-            if (answers.Count != Question.AnswersCount)
+            if (answers.Count < Question.MinAnswersCount)
             {
-                throw new ArgumentException($"There are questions with {Question.AnswersCount} answers only available");
+                throw new ArgumentException($"There are questions with {Question.MinAnswersCount} and more answers only available");
             }
 
             if (answers.GroupBy(a => a.Text).Any(t => t.Count() > 1))
             {
-                throw new ArgumentException($"Duplicates of answer texts are not allowed");
+                throw new ArgumentException("Duplicates of answer texts are not allowed");
+            }
+
+            if (answers.GroupBy(a => a.IsCorrect).Any(t => t.Count() > 1))
+            {
+                throw new ArgumentException("The only correct answer is available");
             }
         }
     }

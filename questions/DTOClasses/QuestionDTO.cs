@@ -17,11 +17,11 @@ namespace Presentation.DTOClasses
 
         public Question? MapDTO()
         {
-            if (QuestionText is not null && AnswersTexts.Count == Question.AnswersCount && QuestionCategory is not null)
+            if (QuestionText is not null && AnswersTexts.Count >= Question.MinAnswersCount && QuestionCategory is not null)
             {                
                 var q = Question.CreateQuestion(QuestionCategory, QuestionText);
 
-                for (int i = 0; i < Question.AnswersCount; i++)
+                for (int i = 0; i < AnswersTexts.Count; i++)
                 {
                     if (i == CorrectAnswerIndex)
                     {

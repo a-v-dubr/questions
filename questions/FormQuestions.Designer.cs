@@ -119,13 +119,15 @@ namespace Presentation
             _buttonChooseAvailableQuestion.Click += ButtonChooseAvailableQuestion_Click;
             _buttonAcceptAnswerInput = new() { Visible = false, Text = ButtonTexts.PickAnswer };
             _buttonAcceptAnswerInput.Click += ButtonAcceptAnswerInput_Click;
+            _buttonFinishAddingAnswers = new() { Visible = false, Text = ButtonTexts.FinishAddingAnswers };
+            _buttonFinishAddingAnswers.Click += ButtonFinishAddingAnswers_Click;
 
             _comboBoxChooseAvailableQuestion = new() { Visible = false };
             _comboBoxChooseAvailableQuestion.SelectedIndexChanged += ComboBoxChooseAvailableQuestion_SelectedIndexChanged;
             _comboBoxChooseAvailableCategory = new() { Visible = false };
             _comboBoxChooseAvailableCategory.SelectedIndexChanged += ComboBoxChooseAvailableCategory_SelectedIndexChanged;
 
-            _radioButtonsForPickingAnswer = new RadioButton[Question.AnswersCount];
+            _radioButtonsForPickingAnswer = new List<RadioButton>();
 
             _labelErrorMessages = new() { Visible = false, ForeColor = Color.Red };
 
@@ -138,13 +140,14 @@ namespace Presentation
             _flowLayoutPanel.Controls.Add(_comboBoxChooseAvailableQuestion);
             _flowLayoutPanel.Controls.Add(_buttonChooseAvailableQuestion);
             _flowLayoutPanel.Controls.Add(_buttonAcceptAnswerInput);
-            _flowLayoutPanel.Controls.AddRange(_radioButtonsForPickingAnswer);
+            _flowLayoutPanel.Controls.AddRange(_radioButtonsForPickingAnswer.ToArray());
             _flowLayoutPanel.Controls.Add(_buttonChooseExistingCategory);
             _flowLayoutPanel.Controls.Add(_buttonCreateNewCategory);
             _flowLayoutPanel.Controls.Add(_comboBoxChooseAvailableCategory);
             _flowLayoutPanel.Controls.Add(_textBoxForCreatingCategory);
             _flowLayoutPanel.Controls.Add(_buttonSaveCategoryTitle);
             _flowLayoutPanel.Controls.Add(_buttonAcceptCategoryChoice);
+            _flowLayoutPanel.Controls.Add(_buttonFinishAddingAnswers);
         }
 
         private const int _controlWidth = 400;
@@ -165,6 +168,7 @@ namespace Presentation
         private Button _buttonSaveCorrectAnswerIndex;
         private Button _buttonChooseAvailableQuestion;
         private Button _buttonAcceptAnswerInput;
+        private Button _buttonFinishAddingAnswers;
 
         private TextBox _textBoxForQuestionInput;
         private TextBox _textBoxForAnswerInput;
@@ -173,6 +177,6 @@ namespace Presentation
         private ComboBox _comboBoxChooseAvailableQuestion;
         private ComboBox _comboBoxChooseAvailableCategory;
 
-        private RadioButton[] _radioButtonsForPickingAnswer;        
+        private List<RadioButton> _radioButtonsForPickingAnswer;
     }
 }

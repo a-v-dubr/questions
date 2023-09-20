@@ -9,7 +9,7 @@ namespace Domain
     /// </summary>
     public class Question
     {
-        public const int AnswersCount = 4;
+        public const int MinAnswersCount = 2;
         public enum Repetitions
         {
             Disable,
@@ -109,7 +109,7 @@ namespace Domain
         /// <param name="question"></param>
         public void UpdateRepetitionProperties(Question question)
         {
-            if (question is not null && question.Answers.Count == AnswersCount)
+            if (question is not null)
             {
                 AvailableAt = question.AvailableAt;
                 RepeateInPeriod = question.RepeateInPeriod;

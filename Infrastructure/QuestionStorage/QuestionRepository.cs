@@ -19,7 +19,7 @@ namespace Infrastructure
         /// <param name="question"></param>
         public void AddQuestionToRepository(Question question)
         {
-            if (!_questions.Any(q => q.Id == question.Id) && question.Answers.Count == Question.AnswersCount && question.Answers.Any(a => a.IsCorrect))
+            if (!_questions.Any(q => q.Id == question.Id) && question.Answers.Any(a => a.IsCorrect))
             {
                 _questions.Add(question);
                 if (!Categories.Any(c => c.Id == question.QuestionCategory.Id))
