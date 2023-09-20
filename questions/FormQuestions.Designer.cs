@@ -37,6 +37,7 @@ namespace Presentation
             this._labelUserActionsHelper = new System.Windows.Forms.Label();
             this._buttonAddNewQuestion = new System.Windows.Forms.Button();
             this._buttonDisplayAvailableQuestions = new System.Windows.Forms.Button();
+            this._buttonExitProgram = new System.Windows.Forms.Button();
             this._flowLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,6 +47,7 @@ namespace Presentation
             this._flowLayoutPanel.Controls.Add(this._labelUserActionsHelper);
             this._flowLayoutPanel.Controls.Add(this._buttonAddNewQuestion);
             this._flowLayoutPanel.Controls.Add(this._buttonDisplayAvailableQuestions);
+            this._flowLayoutPanel.Controls.Add(this._buttonExitProgram);
             this._flowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this._flowLayoutPanel.Location = new System.Drawing.Point(4, 3);
             this._flowLayoutPanel.Name = "_flowLayoutPanel";
@@ -79,6 +81,15 @@ namespace Presentation
             this._buttonDisplayAvailableQuestions.Text = ButtonTexts.DisplayAvailableQuestions;
             this._buttonDisplayAvailableQuestions.UseVisualStyleBackColor = true;
             this._buttonDisplayAvailableQuestions.Click += new System.EventHandler(this.ButtonDisplayAvailableQuestions_Click);
+            // 
+            // _buttonExitProgram
+            // 
+            this._buttonExitProgram.Name = "_buttonExitProgram";
+            this._buttonExitProgram.Size = new System.Drawing.Size(400, 37);
+            this._buttonExitProgram.TabIndex = 2;
+            this._buttonExitProgram.Text = ButtonTexts.ExitProgram;
+            this._buttonExitProgram.UseVisualStyleBackColor = true;
+            this._buttonExitProgram.Click += new System.EventHandler(this.ButtonExitProgram_Click);
             // 
             // Form1
             // 
@@ -121,6 +132,8 @@ namespace Presentation
             _buttonAcceptAnswerInput.Click += ButtonAcceptAnswerInput_Click;
             _buttonFinishAddingAnswers = new() { Visible = false, Text = ButtonTexts.FinishAddingAnswers };
             _buttonFinishAddingAnswers.Click += ButtonFinishAddingAnswers_Click;
+            _buttonReturnToMainMenu = new() { Visible = false, Text = ButtonTexts.ReturnToMainMenu };
+            _buttonReturnToMainMenu.Click += ButtonReturnToMainMenu_Click;
 
             _comboBoxChooseAvailableQuestion = new() { Visible = false };
             _comboBoxChooseAvailableQuestion.SelectedIndexChanged += ComboBoxChooseAvailableQuestion_SelectedIndexChanged;
@@ -148,6 +161,7 @@ namespace Presentation
             _flowLayoutPanel.Controls.Add(_buttonSaveCategoryTitle);
             _flowLayoutPanel.Controls.Add(_buttonAcceptCategoryChoice);
             _flowLayoutPanel.Controls.Add(_buttonFinishAddingAnswers);
+            _flowLayoutPanel.Controls.Add(_buttonReturnToMainMenu);
         }
 
         private const int _controlWidth = 400;
@@ -169,6 +183,8 @@ namespace Presentation
         private Button _buttonChooseAvailableQuestion;
         private Button _buttonAcceptAnswerInput;
         private Button _buttonFinishAddingAnswers;
+        private Button _buttonExitProgram;
+        private Button _buttonReturnToMainMenu;
 
         private TextBox _textBoxForQuestionInput;
         private TextBox _textBoxForAnswerInput;

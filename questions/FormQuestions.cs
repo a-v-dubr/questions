@@ -1,6 +1,7 @@
 using BusinessLogic;
 using Domain;
 using Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Presentation.DTOClasses;
 using static Presentation.Helper.ControlMessages;
 using static Presentation.Helper.Validator;
@@ -12,7 +13,7 @@ namespace Presentation
         private readonly QuestionRepository _repo = new();
         private QuestionRepetitionsHandler? _handler;
         private QuestionDTO? _questionDTO;
-        private RadioButton? _input;
+        private RadioButton? _answerInput;
         private Question? _selectedQuestion;
         private Category? _selectedCategory;
         private readonly List<Category> _categories = new();
@@ -37,7 +38,7 @@ namespace Presentation
         private void ButtonAddNewQuestion_Click(object sender, EventArgs e)
         {
             _questionCreatingInProcess = true;
-            HideControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions, _buttonAddNewQuestion);
+            HideMainMenuControls();
             if (_categories.Count > 0)
             {
                 _labelUserActionsHelper.Text = LabelTexts.ChooseOrCreateCategory;
@@ -47,7 +48,7 @@ namespace Presentation
             {
                 _labelUserActionsHelper.Text = LabelTexts.CreateCategory;
                 DisplayControls(_buttonCreateNewCategory);
-            }
+            }            
         }
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace Presentation
         private void ButtonAcceptAnswerText_Click(object sender, EventArgs e)
         {
             HideControls(_labelErrorMessages);
-
+            
             if (_questionDTO is not null)
             {
                 if (UserInputIsValid(_textBoxForAnswerInput.Text))
@@ -142,7 +143,7 @@ namespace Presentation
                     _radioButtonsForPickingAnswer.Add(r);
                     AddControlToFlowLayoutPanel(r);
                     _textBoxForAnswerInput.Clear();
-                    _answerInputCounter++;
+                    _answerInputCounter++;                    
                 }
             }
 
@@ -195,8 +196,8 @@ namespace Presentation
         /// <param name="e"></param>
         private void RadiobuttonToSetCorrectAnswer_CheckedChanged(object sender, EventArgs e)
         {
-            _input = (RadioButton)sender;
-            if (_input.Checked)
+            _answerInput = (RadioButton)sender;
+            if (_answerInput.Checked)
             {
                 DisplayControls(_buttonSaveCorrectAnswerIndex);
             }
@@ -209,9 +210,9 @@ namespace Presentation
         /// <param name="e"></param>
         private void ButtonSaveCorrectAnswerIndex_Click(object sender, EventArgs e)
         {
-            if (_questionDTO is not null && _input is not null)
+            if (_questionDTO is not null && _answerInput is not null)
             {
-                _questionDTO.CorrectAnswerIndex = _questionDTO.AnswersTexts.FindIndex(a => a == _input.Text);
+                _questionDTO.CorrectAnswerIndex = _questionDTO.AnswersTexts.FindIndex(a => a == _answerInput.Text);
                 var question = _questionDTO.MapDTO();
 
                 if (question is not null)
@@ -224,9 +225,9 @@ namespace Presentation
                     _radioButtonsForPickingAnswer.Clear();
                     HideControls(_buttonSaveCorrectAnswerIndex);                    
                     _labelUserActionsHelper.Text = LabelTexts.QuestionIsSavedAndAvailable;
+                    DisplayControls(_buttonReturnToMainMenu);
                 }
-            }
-            DisplayControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions);
+            }            
         }
 
         /// <summary>
@@ -320,7 +321,7 @@ namespace Presentation
                 }
 
                 _labelUserActionsHelper.Text = LabelTexts.AvailableCategories;
-                HideControls(_buttonDisplayAvailableQuestions, _buttonAddNewQuestion);
+                HideMainMenuControls();
                 DisplayControls(_comboBoxChooseAvailableCategory);
             }
             else
@@ -355,6 +356,7 @@ namespace Presentation
                     _comboBoxChooseAvailableQuestion.Items.Clear();
                     _comboBoxChooseAvailableQuestion.Text = string.Empty;
                     HideControls(_buttonChooseAvailableQuestion, _comboBoxChooseAvailableQuestion);
+                   
                     _labelUserActionsHelper.Text = _selectedQuestion.Text;
 
                     for (int i = 0; i < _selectedQuestion.Answers.Count; i++)
@@ -377,10 +379,10 @@ namespace Presentation
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void RadioButtonsForPickingAnswer_CheckedChanged(object sender, EventArgs e)
-        {
-            _input = (RadioButton)sender;
-            if (_input.Checked)
-            {
+        {            
+            _answerInput = (RadioButton)sender;
+            if (_answerInput.Checked)
+            {                
                 DisplayControls(_buttonAcceptAnswerInput);
             }
         }
@@ -395,12 +397,12 @@ namespace Presentation
             HideControls(_radioButtonsForPickingAnswer.ToArray());
             _radioButtonsForPickingAnswer.Clear();
             HideControls(_buttonAcceptAnswerInput);
-            DisplayControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions);
+            DisplayControls(_buttonReturnToMainMenu);
 
-            if (_selectedQuestion is not null && _input is not null)
+            if (_selectedQuestion is not null && _answerInput is not null)
             {
                 _handler = new(_selectedQuestion, _repo);
-                if (_selectedQuestion.Answers.FirstOrDefault(a => a.Text == _input.Text && a.IsCorrect) is not null)
+                if (_selectedQuestion.Answers.FirstOrDefault(a => a.Text == _answerInput.Text && a.IsCorrect) is not null)
                 {
                     _handler.ReduceRepetitions();
                     _labelUserActionsHelper.Text = LabelTexts.CorrectAnswer + string.Format(LabelTexts.WhenQuestionIsAvailable, _selectedQuestion.AvailableAt);
@@ -413,5 +415,15 @@ namespace Presentation
             }
         }
         #endregion
+
+        /// <summary>
+        /// Exits application
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonExitProgram_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }

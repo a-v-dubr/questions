@@ -19,6 +19,8 @@
             public const string AcceptCorrectAnswerInput = "Сохранить правильный ответ";
             public const string AnswerTheQuestion = "Ответить на вопрос";
             public const string PickAnswer = "Проверить ответ";
+            public const string ExitProgram = "Выход из программы";
+            public const string ReturnToMainMenu = "Вернуться в меню";
         }
 
         public static class LabelTexts

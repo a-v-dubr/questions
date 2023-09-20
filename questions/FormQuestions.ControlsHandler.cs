@@ -1,4 +1,6 @@
-﻿namespace Presentation
+﻿using static Presentation.Helper.ControlMessages;
+
+namespace Presentation
 {
     public partial class FormQuestions
     {
@@ -52,6 +54,43 @@
             var control = _flowLayoutPanel.Controls[index];
             control.AutoSize = true;
             control.Width = _controlWidth;
+        }
+
+
+        /// <summary>
+        /// Displays main menu buttons
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonReturnToMainMenu_Click(object sender, EventArgs e)
+        {
+            ReturnToMainMenu();
+        }
+
+        /// <summary>
+        /// Displays main menu buttons and user helper label
+        /// </summary>
+        private void ReturnToMainMenu()
+        {
+            if (_repo.GetAvailableQuestions().Count == 0)
+            {
+                _buttonDisplayAvailableQuestions.Enabled = false;
+            }
+            else
+            {
+                _buttonDisplayAvailableQuestions.Enabled = true;
+            }
+            HideControls(_buttonReturnToMainMenu);
+            _labelUserActionsHelper.Text = LabelTexts.ChooseMainMenuAction;
+            DisplayControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions, _buttonExitProgram);
+        }
+
+        /// <summary>
+        /// Hides main menu buttons
+        /// </summary>
+        private void HideMainMenuControls()
+        {
+            HideControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions, _buttonExitProgram);
         }
     }
 }

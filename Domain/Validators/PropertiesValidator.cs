@@ -22,7 +22,7 @@
                 throw new ArgumentException("Duplicates of answer texts are not allowed");
             }
 
-            if (answers.GroupBy(a => a.IsCorrect).Any(t => t.Count() > 1))
+            if (answers.FindAll(a => a.IsCorrect).Count > 1)
             {
                 throw new ArgumentException("The only correct answer is available");
             }
