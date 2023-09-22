@@ -1,5 +1,4 @@
-﻿using BusinessLogic;
-using Domain;
+﻿using Domain;
 
 namespace Presentation.DTOClasses
 {
@@ -7,9 +6,8 @@ namespace Presentation.DTOClasses
     /// Initializes a new instance of QuestionDTO class
     /// </summary>
     internal class QuestionDTO
-    {        
+    {
         public string? QuestionText { get; set; }
-        public DateTime AvailableAt { get; set; }
         public List<Answer> Answers { get; set; } = new();
         public int CorrectAnswerIndex { get; set; }
         public List<string> AnswersTexts { get; set; } = new();
@@ -18,7 +16,7 @@ namespace Presentation.DTOClasses
         public Question? MapDTO()
         {
             if (QuestionText is not null && AnswersTexts.Count >= Question.MinAnswersCount && QuestionCategory is not null)
-            {                
+            {
                 var q = Question.CreateQuestion(QuestionCategory, QuestionText);
 
                 for (int i = 0; i < AnswersTexts.Count; i++)

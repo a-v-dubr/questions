@@ -1,5 +1,6 @@
 ﻿using Domain;
 using Infrastructure;
+using static BusinessLogic.Validator;
 
 namespace BusinessLogic
 {
@@ -63,25 +64,5 @@ namespace BusinessLogic
                 return default;
             }
         }
-
-        private static void ValidateNotNullInstances(params object[] objects)
-        {
-            foreach (var o in objects)
-            {
-                if (o is null)
-                {
-                    throw new ArgumentException($"The instance cannot be null");
-                }
-            }
-        }
-
-        private static void ValidateIfRepositoryContainsQuestion(QuestionRepository repo, Question question)
-        {
-            if (!repo.Contains(question))
-            {
-                throw new ArgumentException($"Cannot create handler because {nameof(repo)} instance doesn't contain {nameof(question)} instance");
-            }
-        }
-
     }
 }

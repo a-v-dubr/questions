@@ -21,6 +21,8 @@
             public const string PickAnswer = "Проверить ответ";
             public const string ExitProgram = "Выход из программы";
             public const string ReturnToMainMenu = "Вернуться в меню";
+            public const string EditQuestion = "Редактировать вопрос";
+            public const string SaveTextChanges = "Сохранить изменения";
         }
 
         public static class LabelTexts
@@ -42,6 +44,8 @@
             public readonly static string WhenQuestionIsAvailable = "\nВопрос будет доступен {0}.";
             public const string CorrectAnswer = "Вы дали правильный ответ!";
             public const string WrongAnswer = "Вы дали неправильный ответ!";
+            public const string EmptyFormsError = "Чтобы сохранить изменения, заполните все формы";
+            public const string TypeNewTextValues = "Введите новые значения вопроса и ответов:";
         }
 
         public static class PlaceholderTexts

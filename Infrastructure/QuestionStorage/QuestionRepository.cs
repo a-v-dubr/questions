@@ -101,6 +101,47 @@ namespace Infrastructure
         /// Updates RepetitionsCount and AvailableAt properties according to new data
         /// </summary>
         /// <param name="question"></param>
+        public void UpdateTextsValuesInDb(Question question)
+        {
+            if (_questions.Contains(question))
+            {
+                using var context = new QuestionDbContext();
+                context.Database.Migrate();
+                int id = question.Id;
+                var updatingQuestion = context.Questions.Find(id);
+                var updatingAnswers = context.Answers.Where(a => a.QuestionId == id);
+
+                foreach (var a in updatingAnswers)
+                {
+                    a.UpdateAnswerText(question.Answers.Single(ans => ans.Id == a.Id).Text);
+                }
+
+                if (updatingQuestion is not null)
+                {
+                    if (updatingQuestion.Answers.Count == 0)
+                    {
+                        updatingQuestion.Answers.AddRange(updatingAnswers);
+                    }
+                    updatingQuestion.UpdateQuestionText(question.Text);
+
+                    int newCorrectAnswerId = question.Answers.Single(a => a.IsCorrect).Id;
+                    int previousCorrectAnswerId = updatingQuestion.Answers.Single(a => a.IsCorrect).Id;
+
+                    if (previousCorrectAnswerId != newCorrectAnswerId)
+                    {
+                        updatingQuestion.Answers.Single(a => a.IsCorrect).SetIncorrectAnswer();
+                        updatingQuestion.Answers.Single(a => a.Id == newCorrectAnswerId).SetCorrectAnswer();
+                    }
+
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates question's and answers' texts in DB according to new data
+        /// </summary>
+        /// <param name="question"></param>
         public void UpdateQuestionRepetitionsInDb(Question question)
         {
             if (_questions.Contains(question))

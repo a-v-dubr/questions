@@ -111,6 +111,7 @@ namespace Presentation
             _textBoxForAnswerInput = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeAnswerText };
             _textBoxForCreatingCategory = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeCategoryTitle };
             _textBoxForCreatingCategory.TextChanged += TextBoxForCreatingCategory_TextChanged;
+            _textBoxesForEditingAnswers = new();
 
             _buttonCreateNewCategory = new() { Visible = false, Text = ButtonTexts.CreateNewCategory };
             _buttonCreateNewCategory.Click += ButtonCreateNewCategory_Click;
@@ -134,13 +135,17 @@ namespace Presentation
             _buttonFinishAddingAnswers.Click += ButtonFinishAddingAnswers_Click;
             _buttonReturnToMainMenu = new() { Visible = false, Text = ButtonTexts.ReturnToMainMenu };
             _buttonReturnToMainMenu.Click += ButtonReturnToMainMenu_Click;
+            _buttonEditQuestion = new() { Visible = false, Text = ButtonTexts.EditQuestion };
+            _buttonEditQuestion.Click += ButtonEditQuestion_Click;
+            _buttonSaveTextsChanges = new() { Visible = false, Text = ButtonTexts.SaveTextChanges, Enabled = false };
+            _buttonSaveTextsChanges.Click += ButtonSaveTextChanges_Click;
 
-            _comboBoxChooseAvailableQuestion = new() { Visible = false };
+            _comboBoxChooseAvailableQuestion = new() { Visible = false, DropDownStyle = ComboBoxStyle.DropDownList };
             _comboBoxChooseAvailableQuestion.SelectedIndexChanged += ComboBoxChooseAvailableQuestion_SelectedIndexChanged;
-            _comboBoxChooseAvailableCategory = new() { Visible = false };
+            _comboBoxChooseAvailableCategory = new() { Visible = false, DropDownStyle = ComboBoxStyle.DropDownList };
             _comboBoxChooseAvailableCategory.SelectedIndexChanged += ComboBoxChooseAvailableCategory_SelectedIndexChanged;
 
-            _radioButtonsForPickingAnswer = new List<RadioButton>();
+            _radioButtonsForPickingAnswer = new();
 
             _labelErrorMessages = new() { Visible = false, ForeColor = Color.Red };
 
@@ -162,6 +167,8 @@ namespace Presentation
             _flowLayoutPanel.Controls.Add(_buttonAcceptCategoryChoice);
             _flowLayoutPanel.Controls.Add(_buttonFinishAddingAnswers);
             _flowLayoutPanel.Controls.Add(_buttonReturnToMainMenu);
+            _flowLayoutPanel.Controls.Add(_buttonEditQuestion);
+            _flowLayoutPanel.Controls.Add(_buttonSaveTextsChanges);
         }
 
         private const int _controlWidth = 400;
@@ -185,10 +192,13 @@ namespace Presentation
         private Button _buttonFinishAddingAnswers;
         private Button _buttonExitProgram;
         private Button _buttonReturnToMainMenu;
+        private Button _buttonEditQuestion;
+        private Button _buttonSaveTextsChanges;
 
         private TextBox _textBoxForQuestionInput;
         private TextBox _textBoxForAnswerInput;
         private TextBox _textBoxForCreatingCategory;
+        private List<TextBox> _textBoxesForEditingAnswers;
 
         private ComboBox _comboBoxChooseAvailableQuestion;
         private ComboBox _comboBoxChooseAvailableCategory;

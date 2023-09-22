@@ -39,5 +39,23 @@ namespace Domain
                 IsCorrect = true;
             }
         }
+
+        /// <summary>
+        /// Sets actual answer as incorrect
+        /// </summary>
+        public void SetIncorrectAnswer()
+        {
+            IsCorrect = false;
+        }
+
+        /// <summary>
+        /// Sets new value for answer text property
+        /// </summary>
+        /// <param name="text"></param>
+        public void UpdateAnswerText(string text)
+        {
+            ValidateNotNullOrWhiteSpaceText(text);
+            Text = text;
+        }
     }
 }

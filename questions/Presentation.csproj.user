@@ -7,5 +7,8 @@
     <Compile Update="FormQuestions.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="FormQuestions.DataHandler.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

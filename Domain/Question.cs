@@ -126,6 +126,15 @@ namespace Domain
         {
             return new(category, questionText);
         }
-    }
 
+        /// <summary>
+        /// Sets new value for question text property
+        /// </summary>
+        /// <param name="text"></param>
+        public void UpdateQuestionText(string text)
+        {
+            ValidateNotNullOrWhiteSpaceText(text);
+            Text = text;
+        }
+    }
 }
