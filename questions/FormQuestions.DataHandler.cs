@@ -1,5 +1,6 @@
 ﻿using BusinessLogic;
 using Domain;
+using static Presentation.Helper.ControlMessages;
 using static Presentation.Helper.Validator;
 
 namespace Presentation
@@ -11,35 +12,22 @@ namespace Presentation
         /// </summary>
         /// <param name="questions"></param>
         /// <returns></returns>
-        private List<Category> GetAvailableCategories(List<Question> questions)
+        private List<Category> GetAvailableCategories()
         {
             var result = new List<Category>();
-            if (questions.Any())
+            var availableQustions = _repo.GetAvailableQuestions();
+
+            if (availableQustions.Any())
             {
                 foreach (var c in _categories)
                 {
-                    if (c is not null && questions.Any(q => q.CategoryId == c.Id))
+                    if (c is not null && availableQustions.Any(q => q.CategoryId == c.Id))
                     {
                         result.Add(c);
                     }
                 }
             }
             return result;
-        }
-
-        /// <summary>
-        /// Creates category with defined title if user title input is correct and adds it to available categories' list
-        /// </summary>
-        /// <param name="title"></param>
-        private bool TryCreateCategory(string title)
-        {
-            if (UserInputIsValid(title))
-            {
-                _selectedCategory = new Category(title);
-                _categories.Add(_selectedCategory);
-                return true;
-            }
-            return false;
         }
 
         /// <summary>
@@ -72,6 +60,38 @@ namespace Presentation
             {
                 _repo.AddQuestionToRepository(question);
                 _repo.AddQuestionToDb(question);
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the question exists and the chosen answer is correct, otherwise, false
+        /// </summary>
+        /// <returns></returns>
+        private bool IsAnswerCorrect()
+        {
+            if (_selectedQuestion is not null && _answerInput is not null)
+            {
+                return _selectedQuestion.Answers.FirstOrDefault(a => a.Text == _answerInput.Text && a.IsCorrect) is not null;
+            }
+            return default;
+        }
+
+        /// <summary>
+        ///  Reduces or resets next time for displaying question according to correct or incorrect user answer
+        /// </summary>
+        private void CheckAnswer(bool isAnswerCorrect)
+        {
+            if (_selectedQuestion is not null && _answerInput is not null)
+            {
+                _handler = new(_selectedQuestion, _repo);
+                if (isAnswerCorrect)
+                {
+                    _handler.ReduceRepetitions();                    
+                }
+                else
+                {
+                    _handler.ResetRepetitions();                    
+                }
             }
         }
     }

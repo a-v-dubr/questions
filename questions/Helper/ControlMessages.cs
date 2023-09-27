@@ -17,8 +17,8 @@
             public const string FinishAddingAnswers = "Завершить ввод ответов";
             public const string AcceptAnswerText = "Сохранить вариант ответа";
             public const string AcceptCorrectAnswerInput = "Сохранить правильный ответ";
-            public const string AnswerTheQuestion = "Ответить на вопрос";
-            public const string PickAnswer = "Проверить ответ";
+            public const string AcceptQuestionChoice = "Ответить на этот вопрос";
+            public const string CheckAnswer = "Проверить ответ";
             public const string ExitProgram = "Выход из программы";
             public const string ReturnToMainMenu = "Вернуться в меню";
             public const string EditQuestion = "Редактировать вопрос";
@@ -31,12 +31,12 @@
 
             public const string ChooseOrCreateCategory = "Выберите категорию вопросов или создайте новую:";
             public const string AvailableCategories = "Доступные категории:";
-            public const string CreateCategory = "Создаём новую категорию:";
+            public const string CreateCategory = "Введите название новой категории:";
 
             public readonly static string ChooseQuestionInCategory = "Выберите вопрос в категории \"{0}\":";
             public const string NoQuestionsAvailable = "Доступных вопросов нет. Вы можете добавить новый вопрос.";
-            public readonly static string CreateQuestion = "Создаём новый вопрос в категории \"{0}\":";
-            public readonly static string DisplayQuestionWhileAddingAnswers = "Вопрос: \n{0}\n";
+            public readonly static string CreateQuestion = "Введите текст вопроса в категории \"{0}\":";
+            public readonly static string DisplayQuestionWhileAddingAnswers = "Введите варианты ответа на вопрос: \n{0}\n";
             public readonly static string DisplayAnswersWhileAddingAnswers = "\nВариант ответа #{0}:\n{1}\n";
             public const string DuplicateQuestionsError = "Вы ввели повторяющиеся ответы. Начните заново.";
             public readonly static string SetCorrectAnswer = "Укажите правильный ответ на вопрос:\n{0}";

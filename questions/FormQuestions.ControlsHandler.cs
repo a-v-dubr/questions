@@ -1,9 +1,16 @@
-﻿using static Presentation.Helper.ControlMessages;
+﻿using Domain;
+using static Presentation.Helper.ControlMessages;
+using static Presentation.Helper.Validator;
 
 namespace Presentation
 {
     public partial class FormQuestions
     {
+        private const int _controlWidth = 400;
+        private bool ComboBoxContainsQuestion => _selectedCategory is not null && _comboBox.Items.Count > 0 && _comboBox.SelectedItem is not null;
+        private bool ComboBoxIsReadyToAddQuestions => _selectedCategory is not null && _selectedQuestion is null && _comboBox.Items.Count == 0;
+        private bool ComboBoxIsReadyToAddCategories => _selectedCategory is null && _comboBox.Items.Count == 0;
+
         /// <summary>
         /// Disables visibility for form control elements
         /// </summary>
@@ -40,11 +47,8 @@ namespace Presentation
                 {
                     _flowLayoutPanel.Controls.Add(control);
                 }
-            }
-            DisplayButtonReturnToMainMenu();
+            }            
         }
-
-
 
         /// <summary>
         /// Sets autoheight and fixed width for the control added to the flow layout panel
@@ -57,46 +61,113 @@ namespace Presentation
             var control = _flowLayoutPanel.Controls[index];
             control.AutoSize = true;
             control.Width = _controlWidth;
-        }
+        }       
 
         /// <summary>
-        /// Displays button to return to main menu and places it under other panel elements
+        /// Hides main menu buttons
         /// </summary>
-        private void DisplayButtonReturnToMainMenu()
+        private void HideMainMenuControls()
         {
-            _flowLayoutPanel.Controls.SetChildIndex(_buttonReturnToMainMenu, _flowLayoutPanel.Controls.Count);
-            DisplayControls(_buttonReturnToMainMenu);
+            HideControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions, _buttonExitProgram);
         }
 
         /// <summary>
-        /// Displays main menu buttons
+        /// Creates disabled radiobutton with defined text and adds it to the flow layout panel
+        /// </summary>
+        /// <param name="text"></param>
+        private void CreateAnswerRadiobutton(string text)
+        {
+            var r = new RadioButton() { Enabled = false, Text = text };
+            _radioButtonsForAnswers.Add(r);
+            AddControlToFlowLayoutPanel(r);
+            DisplayButtonReturnToMainMenu();
+        }
+
+        /// <summary>
+        /// Enables radiobutton and subscribes it to method for defining a correct answer or picking an answer 
+        /// </summary>
+        /// <param name="r"></param>
+        private void EnableAnswerRadioButton(RadioButton r)
+        {
+            r.CheckedChanged += OnRadioButtonForAnswerCheckedChanged!;
+            r.Enabled = true;
+        }
+
+        /// <summary>
+        /// Deletes combobox's items and clears its text
+        /// </summary>
+        private void ClearComboBox()
+        {
+            if (_comboBox.Items.Count > 0)
+            {
+                _comboBox.Items.Clear();
+            }
+            _comboBox.Text = string.Empty;
+        }
+
+        /// <summary>
+        /// Removes control from the flow layout panel controls' list
+        /// </summary>
+        /// <param name="control"></param>
+        private void RemoveControlFromFlowLayoutPanel<T>(List<T> controls) where T : Control
+        {
+            foreach (var control in controls)
+            {
+                if (_flowLayoutPanel.Controls.Contains(control))
+                {
+                    _flowLayoutPanel.Controls.Remove(control);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds categories' titles to the combobox items if their list is empty
+        /// </summary>
+        /// <param name="categories"></param>
+        private void AddCategoriesToComboBox(IEnumerable<Category> categories)
+        {
+            if (categories is not null && categories.Any() && _comboBox.Items.Count == 0)
+            {
+                foreach (var c in categories)
+                {
+                    _comboBox.Items.Add(c.Title);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds questions' texts to the combobox items if their list is empty
+        /// </summary>
+        /// <param name="categories"></param>
+        private void AddQuestionsToComboBox(IEnumerable<Question> questions)
+        {
+            if (questions is not null && questions.Any() && _comboBox.Items.Count == 0)
+            {
+                foreach (var q in questions)
+                {
+                    _comboBox.Items.Add(q.Text);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets user input values to default and displays main menu buttons
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ButtonReturnToMainMenu_Click(object sender, EventArgs e)
+        private void OnButtonReturnToMainMenuClick(object sender, EventArgs e)
         {
-            ReturnToMainMenu();
-        }
-
-        /// <summary>
-        /// Displays main menu buttons and user helper label
-        /// </summary>
-        private void ReturnToMainMenu()
-        {
-            _questionCreatingInProcess = default;
-            _questionEditingInProcess = default;
             _selectedCategory = default;
             _selectedQuestion = default;
+
             _questionDTO = default;
 
-            if (_repo.GetAvailableQuestions().Count == 0)
-            {
-                _buttonDisplayAvailableQuestions.Enabled = false;
-            }
-            else
-            {
-                _buttonDisplayAvailableQuestions.Enabled = true;
-            }
+            _questionCreatingInProcess = default;
+            _questionEditingInProcess = default;
+
+            ClearComboBox();
+
+            _buttonDisplayAvailableQuestions.Enabled = _repo.GetAvailableQuestions().Count == 0 ? false : true;
 
             foreach (Control c in _flowLayoutPanel.Controls)
             {
@@ -113,85 +184,14 @@ namespace Presentation
         }
 
         /// <summary>
-        /// Hides main menu buttons
+        /// Displays button to return to main menu and places it under other panel elements
         /// </summary>
-        private void HideMainMenuControls()
+        private void DisplayButtonReturnToMainMenu()
         {
-            HideControls(_buttonAddNewQuestion, _buttonDisplayAvailableQuestions, _buttonExitProgram);
-        }
-
-
-
-        /// <summary>
-        /// Creates disabled radiobutton with defined text and adds it to the flow layout panel
-        /// </summary>
-        /// <param name="text"></param>
-        private void CreateAnswerRadiobutton(string text)
-        {
-            var r = new RadioButton() { Enabled = false, Text = text };
-            _radioButtonsForPickingAnswer.Add(r);
-            AddControlToFlowLayoutPanel(r);
-        }
-
-        /// <summary>
-        /// Enables radiobutton and subscribes it to method for defining correct answer
-        /// </summary>
-        /// <param name="r"></param>
-        private void EnableAnswerRadioButtonToSetCorrectAnswer(RadioButton r)
-        {
-            r.CheckedChanged += RadiobuttonToSetCorrectAnswer_CheckedChanged!;
-            r.Enabled = true;
-        }
-
-        /// <summary>
-        /// Enables radiobutton and subscribes it to method for answering the question
-        /// </summary>
-        /// <param name="r"></param>
-        private void EnableAnswerRadioButtonToPickAnswer(RadioButton r)
-        {
-            r.CheckedChanged += RadioButtonsForPickingAnswer_CheckedChanged!;
-            r.Enabled = true;
-        }
-
-
-
-        /// <summary>
-        /// Deletes combobox's items and clears its text
-        /// </summary>
-        /// <param name="comboBox"></param>
-        private static void ClearComboBox(ComboBox comboBox)
-        {
-            if (comboBox.Items.Count > 0)
+            _flowLayoutPanel.Controls.SetChildIndex(_buttonReturnToMainMenu, _flowLayoutPanel.Controls.Count);
+            if (_buttonReturnToMainMenu.Visible == false)
             {
-                comboBox.Items.Clear();
-            }
-            comboBox.Text = string.Empty;
-        }
-
-        /// <summary>
-        /// Removes control from the flow layout panel controls' list
-        /// </summary>
-        /// <param name="control"></param>
-        private void RemoveControlFromFlowLayoutPanel(Control control)
-        {
-            if (_flowLayoutPanel.Controls.Contains(control))
-            {
-                _flowLayoutPanel.Controls.Remove(control);
-            }
-        }
-
-        /// <summary>
-        /// Removes control from the flow layout panel controls' list
-        /// </summary>
-        /// <param name="control"></param>
-        private void RemoveControlFromFlowLayoutPanel<T>(List<T> controls) where T : Control
-        {
-            foreach (var control in controls)
-            {
-                if (_flowLayoutPanel.Controls.Contains(control))
-                {
-                    _flowLayoutPanel.Controls.Remove(control);
-                }
+                DisplayControls(_buttonReturnToMainMenu);
             }
         }
 

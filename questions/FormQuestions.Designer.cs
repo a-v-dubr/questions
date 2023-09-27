@@ -70,7 +70,7 @@ namespace Presentation
             this._buttonAddNewQuestion.TabIndex = 0;
             this._buttonAddNewQuestion.Text = ButtonTexts.AddNewQuestion;
             this._buttonAddNewQuestion.UseVisualStyleBackColor = true;
-            this._buttonAddNewQuestion.Click += new System.EventHandler(this.ButtonAddNewQuestion_Click);
+            this._buttonAddNewQuestion.Click += new System.EventHandler(this.OnButtonAddNewQuestionClick);
             // 
             // _buttonDisplayAvailableQuestions
             // 
@@ -80,7 +80,7 @@ namespace Presentation
             this._buttonDisplayAvailableQuestions.TabIndex = 1;
             this._buttonDisplayAvailableQuestions.Text = ButtonTexts.DisplayAvailableQuestions;
             this._buttonDisplayAvailableQuestions.UseVisualStyleBackColor = true;
-            this._buttonDisplayAvailableQuestions.Click += new System.EventHandler(this.ButtonDisplayAvailableQuestions_Click);
+            this._buttonDisplayAvailableQuestions.Click += new System.EventHandler(this.OnButtonDisplayAvailableQuestionsClick);
             // 
             // _buttonExitProgram
             // 
@@ -106,103 +106,50 @@ namespace Presentation
 
         private void InitializeControls()
         {
-            _textBoxForQuestionInput = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeQuestionText };
-            _textBoxForQuestionInput.TextChanged += TextBoxForQuestionInput_TextChanged;
-            _textBoxForAnswerInput = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeAnswerText };
-            _textBoxForCreatingCategory = new() { Visible = false, ScrollBars = ScrollBars.Vertical, PlaceholderText = PlaceholderTexts.TypeCategoryTitle };
-            _textBoxForCreatingCategory.TextChanged += TextBoxForCreatingCategory_TextChanged;
-            _textBoxesForEditingAnswers = new();
-
-            _buttonCreateNewCategory = new() { Visible = false, Text = ButtonTexts.CreateNewCategory };
-            _buttonCreateNewCategory.Click += ButtonCreateNewCategory_Click;
-            _buttonChooseExistingCategory = new() { Visible = false, Text = ButtonTexts.ChooseAvailableCategory };
-            _buttonChooseExistingCategory.Click += ButtonChooseExistingCategory_Click;
-            _buttonSaveCategoryTitle = new() { Visible = false, Text = ButtonTexts.SaveCategoryTitle };
-            _buttonSaveCategoryTitle.Click += ButtonSaveCategoryTitle_Click;
-            _buttonAcceptCategoryChoice = new() { Visible = false, Text = ButtonTexts.AcceptCategoryChoice };
-            _buttonAcceptCategoryChoice.Click += ButtonAcceptCategoryChoice_Click;
-            _buttonAcceptQuestionText = new() { Visible = false, Text = ButtonTexts.AcceptQuestionText };
-            _buttonAcceptQuestionText.Click += ButtonAcceptQuestionText_Click;
-            _buttonAcceptAnswerText = new() { Visible = false, Text = ButtonTexts.AcceptAnswerText };
-            _buttonAcceptAnswerText.Click += ButtonAcceptAnswerText_Click;
-            _buttonSaveCorrectAnswerIndex = new() { Visible = false, Text = ButtonTexts.AcceptCorrectAnswerInput };
-            _buttonSaveCorrectAnswerIndex.Click += ButtonSaveCorrectAnswerIndex_Click;
-            _buttonChooseAvailableQuestion = new() { Visible = false, Text = ButtonTexts.AnswerTheQuestion };
-            _buttonChooseAvailableQuestion.Click += ButtonChooseAvailableQuestion_Click;
-            _buttonAcceptAnswerInput = new() { Visible = false, Text = ButtonTexts.PickAnswer };
-            _buttonAcceptAnswerInput.Click += ButtonAcceptAnswerInput_Click;
-            _buttonFinishAddingAnswers = new() { Visible = false, Text = ButtonTexts.FinishAddingAnswers };
-            _buttonFinishAddingAnswers.Click += ButtonFinishAddingAnswers_Click;
-            _buttonReturnToMainMenu = new() { Visible = false, Text = ButtonTexts.ReturnToMainMenu };
-            _buttonReturnToMainMenu.Click += ButtonReturnToMainMenu_Click;
-            _buttonEditQuestion = new() { Visible = false, Text = ButtonTexts.EditQuestion };
-            _buttonEditQuestion.Click += ButtonEditQuestion_Click;
-            _buttonSaveTextsChanges = new() { Visible = false, Text = ButtonTexts.SaveTextChanges, Enabled = false };
-            _buttonSaveTextsChanges.Click += ButtonSaveTextChanges_Click;
-
-            _comboBoxChooseAvailableQuestion = new() { Visible = false, DropDownStyle = ComboBoxStyle.DropDownList };
-            _comboBoxChooseAvailableQuestion.SelectedIndexChanged += ComboBoxChooseAvailableQuestion_SelectedIndexChanged;
-            _comboBoxChooseAvailableCategory = new() { Visible = false, DropDownStyle = ComboBoxStyle.DropDownList };
-            _comboBoxChooseAvailableCategory.SelectedIndexChanged += ComboBoxChooseAvailableCategory_SelectedIndexChanged;
-
-            _radioButtonsForPickingAnswer = new();
-
             _labelErrorMessages = new() { Visible = false, ForeColor = Color.Red };
-
             _flowLayoutPanel.Controls.Add(_labelErrorMessages);
-            _flowLayoutPanel.Controls.Add(_textBoxForAnswerInput);
-            _flowLayoutPanel.Controls.Add(_textBoxForQuestionInput);
-            _flowLayoutPanel.Controls.Add(_buttonAcceptQuestionText);
-            _flowLayoutPanel.Controls.Add(_buttonAcceptAnswerText);
-            _flowLayoutPanel.Controls.Add(_buttonSaveCorrectAnswerIndex);
-            _flowLayoutPanel.Controls.Add(_comboBoxChooseAvailableQuestion);
-            _flowLayoutPanel.Controls.Add(_buttonChooseAvailableQuestion);
-            _flowLayoutPanel.Controls.Add(_buttonAcceptAnswerInput);
-            _flowLayoutPanel.Controls.AddRange(_radioButtonsForPickingAnswer.ToArray());
-            _flowLayoutPanel.Controls.Add(_buttonChooseExistingCategory);
-            _flowLayoutPanel.Controls.Add(_buttonCreateNewCategory);
-            _flowLayoutPanel.Controls.Add(_comboBoxChooseAvailableCategory);
-            _flowLayoutPanel.Controls.Add(_textBoxForCreatingCategory);
-            _flowLayoutPanel.Controls.Add(_buttonSaveCategoryTitle);
-            _flowLayoutPanel.Controls.Add(_buttonAcceptCategoryChoice);
-            _flowLayoutPanel.Controls.Add(_buttonFinishAddingAnswers);
-            _flowLayoutPanel.Controls.Add(_buttonReturnToMainMenu);
-            _flowLayoutPanel.Controls.Add(_buttonEditQuestion);
-            _flowLayoutPanel.Controls.Add(_buttonSaveTextsChanges);
-        }
 
-        private const int _controlWidth = 400;
+            _textBox = new() { Visible = false, ScrollBars = ScrollBars.Vertical };
+            _textBox.TextChanged += OnTextBoxTextChanged;
+            _flowLayoutPanel.Controls.Add(_textBox);
+
+            _comboBox = new() { Visible = false, DropDownStyle = ComboBoxStyle.DropDownList };
+            _comboBox.SelectedIndexChanged += OnComboBoxSelectedIndexChanged;
+            _flowLayoutPanel.Controls.Add(_comboBox);
+
+            _buttonChooseAvailableQuestion = new() { Visible = false };
+            _buttonChooseAvailableQuestion.Click += OnButtonChooseAvailableQuestionClick;
+            _flowLayoutPanel.Controls.Add(_buttonChooseAvailableQuestion);            
+
+            _buttonForPickingAnswers = new() { Visible = false };
+            _buttonForPickingAnswers.Click += OnButtonForPickingAnswersClick;
+            _flowLayoutPanel.Controls.Add(_buttonForPickingAnswers);
+
+            _buttonReturnToMainMenu = new() { Visible = false, Text = ButtonTexts.ReturnToMainMenu };
+            _buttonReturnToMainMenu.Click += OnButtonReturnToMainMenuClick;
+            _flowLayoutPanel.Controls.Add(_buttonReturnToMainMenu);
+
+            _buttonEditOrCreateQuestion = new() { Visible = false, Text = ButtonTexts.EditQuestion };
+            _buttonEditOrCreateQuestion.Click += OnButtonCreateOrEditQuestionClick;
+            _flowLayoutPanel.Controls.Add(_buttonEditOrCreateQuestion);
+        }
+        
 
         private FlowLayoutPanel _flowLayoutPanel;
 
-        private Label _labelUserActionsHelper; 
+        private Label _labelUserActionsHelper;
         private Label _labelErrorMessages;
-
         private Button _buttonAddNewQuestion;
         private Button _buttonDisplayAvailableQuestions;
-        private Button _buttonCreateNewCategory;
-        private Button _buttonChooseExistingCategory;
-        private Button _buttonSaveCategoryTitle;
-        private Button _buttonAcceptCategoryChoice;
-        private Button _buttonAcceptQuestionText;
-        private Button _buttonAcceptAnswerText;
-        private Button _buttonSaveCorrectAnswerIndex;
-        private Button _buttonChooseAvailableQuestion;
-        private Button _buttonAcceptAnswerInput;
-        private Button _buttonFinishAddingAnswers;
         private Button _buttonExitProgram;
         private Button _buttonReturnToMainMenu;
-        private Button _buttonEditQuestion;
-        private Button _buttonSaveTextsChanges;
 
-        private TextBox _textBoxForQuestionInput;
-        private TextBox _textBoxForAnswerInput;
-        private TextBox _textBoxForCreatingCategory;
-        private List<TextBox> _textBoxesForEditingAnswers;
+        private Button _buttonChooseAvailableQuestion;
+        private ComboBox _comboBox;
+        private List<RadioButton> _radioButtonsForAnswers = new();
+        private Button _buttonForPickingAnswers;
 
-        private ComboBox _comboBoxChooseAvailableQuestion;
-        private ComboBox _comboBoxChooseAvailableCategory;
-
-        private List<RadioButton> _radioButtonsForPickingAnswer;
+        private Button _buttonEditOrCreateQuestion;
+        private TextBox _textBox;
     }
 }
