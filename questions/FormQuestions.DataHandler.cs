@@ -1,7 +1,5 @@
 ﻿using BusinessLogic;
 using Domain;
-using static Presentation.Helper.ControlMessages;
-using static Presentation.Helper.Validator;
 
 namespace Presentation
 {
@@ -36,18 +34,10 @@ namespace Presentation
         /// <param name="question"></param>
         private void EditSelectedQuestion(Question question)
         {
-            if (_selectedQuestion is not null)
+            if (_selectedQuestion is not null && question is not null)
             {
                 _editor = new QuestionsEditor(_repo, _selectedQuestion);
-                for (int i = 0; i < _selectedQuestion.Answers.Count; i++)
-                {
-                    if (question.Answers[i].IsCorrect)
-                    {
-                        _editor.UpdateCorrectAnswer(i);
-                    }
-                    _editor.UpdateAnswerText(_selectedQuestion.Answers[i].Id, question.Answers[i].Text);
-                }
-                _editor.UpdateQuestionTextAndSaveToDb(question.Text);
+                _editor.UpdateQuestionProperties(question);
             }
         }
 
@@ -86,11 +76,11 @@ namespace Presentation
                 _handler = new(_selectedQuestion, _repo);
                 if (isAnswerCorrect)
                 {
-                    _handler.ReduceRepetitions();                    
+                    _handler.ReduceRepetitions();
                 }
                 else
                 {
-                    _handler.ResetRepetitions();                    
+                    _handler.ResetRepetitions();
                 }
             }
         }

@@ -89,7 +89,7 @@ namespace Presentation
             this._buttonExitProgram.TabIndex = 2;
             this._buttonExitProgram.Text = ButtonTexts.ExitProgram;
             this._buttonExitProgram.UseVisualStyleBackColor = true;
-            this._buttonExitProgram.Click += new System.EventHandler(this.ButtonExitProgram_Click);
+            this._buttonExitProgram.Click += new System.EventHandler(this.OnButtonExitProgramClick);
             // 
             // Form1
             // 
@@ -111,6 +111,7 @@ namespace Presentation
 
             _textBox = new() { Visible = false, ScrollBars = ScrollBars.Vertical };
             _textBox.TextChanged += OnTextBoxTextChanged;
+           _textBox.Click += OnTextBoxClick;
             _flowLayoutPanel.Controls.Add(_textBox);
 
             _comboBox = new() { Visible = false, DropDownStyle = ComboBoxStyle.DropDownList };
@@ -130,7 +131,7 @@ namespace Presentation
             _flowLayoutPanel.Controls.Add(_buttonReturnToMainMenu);
 
             _buttonEditOrCreateQuestion = new() { Visible = false, Text = ButtonTexts.EditQuestion };
-            _buttonEditOrCreateQuestion.Click += OnButtonCreateOrEditQuestionClick;
+            _buttonEditOrCreateQuestion.Click += OnButtonEditOrCreateQuestionClick;
             _flowLayoutPanel.Controls.Add(_buttonEditOrCreateQuestion);
         }
         

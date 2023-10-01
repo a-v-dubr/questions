@@ -29,7 +29,8 @@ namespace Domain
         public DateTime AvailableAt { get; private set; }
         public List<Answer> Answers { get; private set; } = new();
         public int CategoryId { get; private set; }
-        public Category QuestionCategory { get; set; }
+        public Category QuestionCategory { get; private set; }
+        public bool Enabled { get; private set; }
 
 #pragma warning disable
         private Question() { }
@@ -40,6 +41,7 @@ namespace Domain
             QuestionCategory = category;
             Text = questionText;
             AvailableAt = DateTime.Now;
+            Enabled = true;
         }
 #pragma warning restore
 
@@ -51,6 +53,7 @@ namespace Domain
             Text = questionText;
             Answers = answers;
             AvailableAt = availableAt;
+            Enabled = true;
         }
 
         /// <summary>
@@ -135,6 +138,41 @@ namespace Domain
         {
             ValidateNotNullOrWhiteSpaceText(text);
             Text = text;
+        }
+
+        /// <summary>
+        /// Sets Enabled property to false
+        /// </summary>
+        public void Disable()
+        {
+            Enabled = false;
+        }
+
+        /// <summary>
+        /// Sets new category for the question
+        /// </summary>
+        /// <param name="newCategory"></param>
+        public void ChangeCategory(Category newCategory)
+        {
+            if (newCategory is not null && newCategory.Enabled)
+            {
+                QuestionCategory = newCategory;
+                CategoryId = newCategory.Id;
+            }
+        }
+
+        /// <summary>
+        /// Sets new answers for the question
+        /// </summary>
+        /// <param name="newAnswers"></param>
+        public void ChangeAnswers(List<Answer> newAnswers)
+        {
+            if (newAnswers is not null)
+            {
+                Answers.Clear();
+                ValidateAnswers(newAnswers);
+                Answers.AddRange(newAnswers);
+            }
         }
     }
 }

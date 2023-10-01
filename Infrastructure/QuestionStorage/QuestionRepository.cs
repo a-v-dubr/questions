@@ -47,7 +47,7 @@ namespace Infrastructure
                 }
 
                 context.Questions.Add(question);
-                context.Answers.AddRange(question.Answers);
+                context.Answers.AddRange(question.Answers.Where(a => a.Enabled));
                 context.SaveChanges();
             }
         }
@@ -59,18 +59,18 @@ namespace Infrastructure
         {
             using var context = new QuestionDbContext();
             context.Database.Migrate();
-            var categories = context.Categories.Include(c => c.Questions).ThenInclude(q => q.Answers).ToList();
+            var categories = context.Categories.Include(c => c.Questions).ThenInclude(c => c.Answers).ToList();
 
             _questions.Clear();
             foreach (var c in categories)
             {
-                if (!Categories.Any(cat => cat.Id == c.Id))
+                if (!Categories.Any(cat => cat.Id == c.Id) && c.Enabled)
                 {
                     Categories.Add(c);
                 }
                 foreach (var q in c.Questions)
                 {
-                    if (q.RepeateInPeriod != Question.Repetitions.Disable)
+                    if (q.RepeateInPeriod != Question.Repetitions.Disable && q.Enabled)
                     {
                         _questions.Add(q);
                     }
@@ -98,43 +98,35 @@ namespace Infrastructure
         }
 
         /// <summary>
-        /// Updates RepetitionsCount and AvailableAt properties according to new data
+        /// Updates all question's properties according to new data
         /// </summary>
         /// <param name="question"></param>
-        public void UpdateTextsValuesInDb(Question question)
+        public void UpdateQuestionInDb(Question question)
         {
             if (_questions.Contains(question))
             {
                 using var context = new QuestionDbContext();
                 context.Database.Migrate();
+
                 int id = question.Id;
                 var updatingQuestion = context.Questions.Find(id);
-                var updatingAnswers = context.Answers.Where(a => a.QuestionId == id);
-
-                foreach (var a in updatingAnswers)
-                {
-                    a.UpdateAnswerText(question.Answers.Single(ans => ans.Id == a.Id).Text);
-                }
 
                 if (updatingQuestion is not null)
                 {
-                    if (updatingQuestion.Answers.Count == 0)
-                    {
-                        updatingQuestion.Answers.AddRange(updatingAnswers);
-                    }
+                    var removingAnswers = context.Answers.ToList().FindAll(a => a.QuestionId == id);
+                    context.Answers.RemoveRange(removingAnswers);
+
+                    context.Entry(updatingQuestion).State = EntityState.Detached;
+
                     updatingQuestion.UpdateQuestionText(question.Text);
+                    updatingQuestion.ChangeCategory(question.QuestionCategory);
+                    updatingQuestion.ChangeAnswers(question.Answers);
+                    updatingQuestion.UpdateRepetitionProperties(question);
 
-                    int newCorrectAnswerId = question.Answers.Single(a => a.IsCorrect).Id;
-                    int previousCorrectAnswerId = updatingQuestion.Answers.Single(a => a.IsCorrect).Id;
-
-                    if (previousCorrectAnswerId != newCorrectAnswerId)
-                    {
-                        updatingQuestion.Answers.Single(a => a.IsCorrect).SetIncorrectAnswer();
-                        updatingQuestion.Answers.Single(a => a.Id == newCorrectAnswerId).SetCorrectAnswer();
-                    }
-
-                    context.SaveChanges();
+                    context.Entry(updatingQuestion).State = EntityState.Modified;
                 }
+
+                context.SaveChanges();
             }
         }
 

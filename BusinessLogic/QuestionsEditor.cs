@@ -21,6 +21,32 @@ namespace BusinessLogic
         }
 
         /// <summary>
+        /// Updates all of the question's properties according to new data and saves object to DB
+        /// </summary>
+        /// <param name="question"></param>
+        public void UpdateQuestionProperties(Question question)
+        {
+            if (question is not null)
+            {
+                _question.UpdateQuestionText(question.Text);
+                _question.ChangeCategory(question.QuestionCategory);
+                _question.ChangeAnswers(question.Answers);
+                _question.UpdateRepetitionProperties(question);
+
+                _repo.UpdateQuestionInDb(_question);
+            }
+        }
+
+        public void UpdateCategory(Category category)
+        {
+            if (category is not null && _question.CategoryId != category.Id && category.Enabled)
+            {
+                _question.ChangeCategory(category);
+                _repo.UpdateQuestionInDb(_question);
+            }
+        }
+
+        /// <summary>
         /// Updates answer's text without writing changes to DB
         /// </summary>
         /// <param name="answerId"></param>
@@ -31,16 +57,6 @@ namespace BusinessLogic
             {
                 _question.Answers.Single(a => a.Id == answerId).UpdateAnswerText(newText);
             }
-        }
-
-        /// <summary>
-        /// Updates question's text and writes new data to DB
-        /// </summary>
-        /// <param name="newText"></param>
-        public void UpdateQuestionTextAndSaveToDb(string newText)
-        {
-            _question.UpdateQuestionText(newText);
-            _repo.UpdateTextsValuesInDb(_question);
         }
 
         /// <summary>

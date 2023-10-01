@@ -110,10 +110,11 @@ namespace Presentation
                 DisplayControls(_buttonEditOrCreateQuestion);
             }
 
-            if (_selectedCategory is not null && !_questionCreatingInProcess)
+            if (_selectedCategory is not null && !_questionCreatingInProcess && !_questionEditingInProcess)
             {
                 _buttonChooseAvailableQuestion.Text = ButtonTexts.AcceptQuestionChoice;
-                DisplayControls(_buttonChooseAvailableQuestion);
+                _buttonEditOrCreateQuestion.Text = ButtonTexts.EditQuestion;
+                DisplayControls(_buttonChooseAvailableQuestion, _buttonEditOrCreateQuestion);
             }
         }
 
@@ -131,17 +132,17 @@ namespace Presentation
                 _labelUserActionsHelper.Text = LabelTexts.AvailableCategories;
                 AddCategoriesToComboBox(_categories);
                 DisplayControls(_comboBox);
-                TrySetOrCreateCategory();                
+                TrySetOrCreateCategory();
             }
 
             if (_selectedCategory is null && _comboBox.Items.Count != 0)
             {
-                TrySetOrCreateCategory();                
+                TrySetOrCreateCategory();
             }
 
             if (_selectedCategory is not null)
             {
-                if (!_questionCreatingInProcess)
+                if (!_questionCreatingInProcess && !_questionEditingInProcess)
                 {
                     if (ComboBoxIsReadyToAddQuestions)
                     {
@@ -156,35 +157,42 @@ namespace Presentation
                     }
                 }
 
-                if (_selectedQuestion is not null)
+                if (_selectedCategory is not null && _selectedQuestion is not null && !_questionEditingInProcess && !_questionCreatingInProcess)
                 {
                     HideControls(_comboBox);
                     _labelUserActionsHelper.Text = _selectedQuestion.Text;
                     DisplayAnswersOfQuestionOrDTO();
-                    if (_questionCreatingInProcess)
+                }
+
+                if ((_questionCreatingInProcess || _questionEditingInProcess) && _questionDTO is not null)
+                {
+                    DisplayAnswersOfQuestionOrDTO();
+                    if (_questionCreatingInProcess || _questionEditingInProcess)
                     {
                         HideControls(_textBox, _buttonEditOrCreateQuestion);
-                        foreach (var r in _radioButtonsForAnswers)
-                        {
-                            EnableAnswerRadioButton(r);
-                        }
+                        _radioButtonsForAnswers.ForEach(EnableAnswerRadioButton);
                         _buttonForPickingAnswers.Text = ButtonTexts.AcceptCorrectAnswerInput;
                     }
                 }
-                
-                if (_selectedQuestion is null && _questionDTO is not null)
-                {
-                    DisplayAnswersOfQuestionOrDTO();
 
-                    if (_questionCreatingInProcess)
+
+                if (_questionEditingInProcess && _selectedCategory is not null && _selectedQuestion is not null && _questionDTO is null)
+                {
+                    if (_selectedQuestion.CategoryId != _selectedCategory.Id)
                     {
-                        HideControls(_textBox, _buttonEditOrCreateQuestion);
-                        foreach (var r in _radioButtonsForAnswers)
-                        {
-                            EnableAnswerRadioButton(r);
-                        }
-                        _buttonForPickingAnswers.Text = ButtonTexts.AcceptCorrectAnswerInput;
+                        _labelUserActionsHelper.Text = string.Format(LabelTexts.QuestionCategoryChanged, _selectedQuestion.Text, _selectedCategory.Title);
                     }
+                    else
+                    {
+                        _labelUserActionsHelper.Text = string.Format(LabelTexts.QuestionCategoryUnchanged, _selectedQuestion.Text, _selectedQuestion.QuestionCategory.Title);
+                    }
+
+                    HideControls(_comboBox);
+                    _buttonEditOrCreateQuestion.Text = ButtonTexts.ContinueEditing;
+                    _buttonForPickingAnswers.Text = ButtonTexts.FinishEditing;
+
+                    DisplayControls(_buttonEditOrCreateQuestion, _buttonForPickingAnswers);
+
                 }
             }
         }
@@ -199,7 +207,7 @@ namespace Presentation
             _answerInput = (RadioButton)sender;
             if (_answerInput.Checked)
             {
-                if (_questionCreatingInProcess && _questionDTO is not null)
+                if ((_questionCreatingInProcess || _questionEditingInProcess) && _questionDTO is not null)
                 {
                     _labelUserActionsHelper.Text = string.Format(LabelTexts.SetCorrectAnswer, _questionDTO.QuestionText);
                     _buttonForPickingAnswers.Text = ButtonTexts.AcceptCorrectAnswerInput;
@@ -220,9 +228,9 @@ namespace Presentation
         private void OnButtonForPickingAnswersClick(object sender, EventArgs e)
         {
             RemoveControlFromFlowLayoutPanel(_radioButtonsForAnswers);
-            HideControls(_buttonForPickingAnswers);
+            HideControls(_buttonForPickingAnswers, _comboBox);
 
-            if (_questionCreatingInProcess)
+            if (_questionCreatingInProcess || _questionEditingInProcess)
             {
                 if (_questionDTO is not null && _answerInput is not null)
                 {
@@ -234,24 +242,32 @@ namespace Presentation
                         if (!_categories.Any(c => c.Id == question.QuestionCategory.Id))
                         {
                             _categories.Add(question.QuestionCategory);
-                        }                     
-
-                        if (_questionEditingInProcess)
-                        {
-                            EditSelectedQuestion(question);
-                            _questionEditingInProcess = false;
                         }
 
                         if (_questionCreatingInProcess)
                         {
                             AddNewQuestion(question);
                             _questionCreatingInProcess = false;
+                            _labelUserActionsHelper.Text = LabelTexts.QuestionIsSavedAndAvailable;
                         }
 
-                        _labelUserActionsHelper.Text = LabelTexts.QuestionIsSavedAndAvailable;
+                        if (_questionEditingInProcess)
+                        {
+                            EditSelectedQuestion(question);
+                            _questionEditingInProcess = false;
+                            _labelUserActionsHelper.Text = LabelTexts.QuestionIsSavedAndAvailable;
+                        }
                     }
                 }
+
+                if (_questionEditingInProcess && _selectedCategory is not null && _selectedQuestion is not null && _questionDTO is null)
+                {
+                    _editor = new QuestionsEditor(_repo, _selectedQuestion);
+                    _editor.UpdateCategory(_selectedCategory);
+                    HideControls(_buttonEditOrCreateQuestion);
+                }
             }
+
             else
             {
                 bool isAnswerCorrect = IsAnswerCorrect();
@@ -267,47 +283,95 @@ namespace Presentation
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnButtonCreateOrEditQuestionClick(object sender, EventArgs e)
-        {           
-            HideControls(_buttonChooseAvailableQuestion, _buttonEditOrCreateQuestion, _comboBox);
-            DisplayControls(_textBox);
+        private void OnButtonEditOrCreateQuestionClick(object sender, EventArgs e)
+        {
+            if (_questionCreatingInProcess)
+            {
+                DisplayControls(_textBox);
+            }
+            if (!_questionCreatingInProcess && !_questionEditingInProcess)
+            {
+                _questionEditingInProcess = true;
+                TrySetSelectedQuestion();
+                _selectedCategory = default;
+            }
 
-            if (_selectedCategory is null)
+            HideControls(_buttonChooseAvailableQuestion, _buttonEditOrCreateQuestion);
+
+            if (_selectedCategory is null && _questionCreatingInProcess)
             {
                 _labelUserActionsHelper.Text = LabelTexts.CreateCategory;
+
                 if (UserInputIsValid(_textBox.Text))
                 {
                     _selectedCategory = new Category(_textBox.Text);
                     _labelUserActionsHelper.Text = string.Format(LabelTexts.CreateQuestion, _selectedCategory.Title);
                     _buttonEditOrCreateQuestion.Text = ButtonTexts.AcceptQuestionText;
                     _textBox.Clear();
+                    _acceptTextBoxTextChanges = false;
+                }
+            }
+
+            if (_selectedCategory is null && _questionEditingInProcess)
+            {
+                if (_selectedQuestion is not null)
+                {
+                    if (_categories.Count > 1)
+                    {
+                        AddCategoriesToComboBox(_categories);
+                        DisplayControls(_comboBox);
+                        _labelUserActionsHelper.Text = string.Format(LabelTexts.ChooseNewCategory, _selectedQuestion.Text);
+                    }
+                    else
+                    {
+                        _selectedCategory = _selectedQuestion.QuestionCategory;
+                    }
                 }
             }
 
             if (_selectedCategory is not null && _questionDTO is null)
-            {                
+            {
+                HideControls(_comboBox);
                 _labelUserActionsHelper.Text = string.Format(LabelTexts.CreateQuestion, _selectedCategory.Title);
 
-                if (UserInputIsValid(_textBox.Text))
+                _buttonEditOrCreateQuestion.Text = ButtonTexts.AcceptQuestionText;
+                DisplayControls(_textBox, _buttonEditOrCreateQuestion);
+
+                if (_questionEditingInProcess && _selectedQuestion is not null)
+                {
+                    DisplayPreviousQuestionInTextBox();
+                    _labelUserActionsHelper.Text = string.Format(LabelTexts.QuestionIsEditing, _selectedQuestion.Text, _selectedCategory.Title);
+                    HideControls(_buttonForPickingAnswers);
+                }
+
+                if (_acceptTextBoxTextChanges)
                 {
                     _questionDTO = new QuestionDTO { QuestionCategory = _selectedCategory, QuestionText = _textBox.Text };
                     _labelUserActionsHelper.Text = string.Format(LabelTexts.DisplayQuestionWhileAddingAnswers, _questionDTO.QuestionText);
                     _buttonEditOrCreateQuestion.Text = ButtonTexts.AcceptQuestionText;
                     _textBox.Clear();
+                    _acceptTextBoxTextChanges = false;
                 }
             }
 
             if (_selectedCategory is not null && _questionDTO is not null)
             {
+                HideControls(_comboBox, _textBox);
                 _buttonEditOrCreateQuestion.Text = ButtonTexts.AcceptAnswerText;
 
-                if (UserInputIsValid(_textBox.Text) && !_questionDTO.AnswersTexts.Contains(_textBox.Text))
+                DisplayPreviousAnswerInTextBox();
+                DisplayControls(_textBox);
+
+                if (_acceptTextBoxTextChanges)
                 {
                     _questionDTO.AnswersTexts.Add(_textBox.Text);
                     CreateAnswerRadiobutton(_textBox.Text);
                     _textBox.Clear();
+                    _acceptTextBoxTextChanges = false;
                     _answerInputCounter++;
+                    DisplayPreviousAnswerInTextBox();
                 }
+
                 if (_answerInputCounter >= Question.MinAnswersCount)
                 {
                     DisplayControls(_buttonChooseAvailableQuestion);
@@ -323,21 +387,49 @@ namespace Presentation
         /// <param name="e"></param>
         private void OnTextBoxTextChanged(object sender, EventArgs e)
         {
-            HideControls(_buttonEditOrCreateQuestion);
-
-            if (_selectedCategory is null)
+            if (!_pauseControlAction)
             {
-                _buttonEditOrCreateQuestion.Text = ButtonTexts.SaveCategoryTitle;
+                HideControls(_buttonEditOrCreateQuestion);
+
+                if (_selectedCategory is null)
+                {
+                    _buttonEditOrCreateQuestion.Text = ButtonTexts.SaveCategoryTitle;
+                }
+
+                if (_selectedCategory is not null && _questionDTO is null)
+                {
+                    _buttonEditOrCreateQuestion.Text = ButtonTexts.AcceptQuestionText;
+                }
+
+                if (UserInputIsValid(_textBox.Text))
+                {
+                    _acceptTextBoxTextChanges = true;
+                    DisplayControls(_buttonEditOrCreateQuestion);
+                }
             }
+        }
 
-            if (_selectedCategory is not null && _questionDTO is null)
+        private void OnTextBoxClick(object sender, EventArgs e)
+        {
+            if (_questionEditingInProcess)
             {
-                _buttonEditOrCreateQuestion.Text = ButtonTexts.AcceptQuestionText;
-            }
+                HideControls(_buttonEditOrCreateQuestion);
 
-            if (UserInputIsValid(_textBox.Text))
-            {
-                DisplayControls(_buttonEditOrCreateQuestion);
+                if (_selectedCategory is null)
+                {
+                    _buttonEditOrCreateQuestion.Text = ButtonTexts.SaveCategoryTitle;
+                }
+
+                if (_selectedCategory is not null && _questionDTO is null)
+                {
+                    _buttonEditOrCreateQuestion.Text = ButtonTexts.AcceptQuestionText;
+                }
+
+                if (UserInputIsValid(_textBox.Text))
+                {
+                    _acceptTextBoxTextChanges = true;
+                    DisplayControls(_buttonEditOrCreateQuestion);
+                }
             }
         }
 
@@ -367,8 +459,8 @@ namespace Presentation
                     if (_categories.FirstOrDefault(c => c.Title == s) is not null)
                     {
                         _selectedCategory = _categories.FirstOrDefault(c => c.Title == s);
-                    }                    
-                    if (!_questionCreatingInProcess)
+                    }
+                    if (!_questionCreatingInProcess && !_questionEditingInProcess)
                     {
                         ClearComboBox();
                     }
@@ -397,7 +489,7 @@ namespace Presentation
         /// </summary>
         private void DisplayAnswersOfQuestionOrDTO()
         {
-            if (_selectedQuestion is not null)
+            if (_selectedQuestion is not null && !_questionEditingInProcess)
             {
                 for (int i = 0; i < _selectedQuestion.Answers.Count; i++)
                 {
@@ -407,7 +499,7 @@ namespace Presentation
                 DisplayControls(_radioButtonsForAnswers.ToArray());
             }
 
-            if (_selectedQuestion is null && _questionDTO is not null)
+            if ((_questionCreatingInProcess || _questionEditingInProcess) && _questionDTO is not null)
             {
                 if (AnswerTextsAreUnique(_questionDTO.AnswersTexts))
                 {

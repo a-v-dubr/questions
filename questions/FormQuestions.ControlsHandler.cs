@@ -1,6 +1,5 @@
 ﻿using Domain;
 using static Presentation.Helper.ControlMessages;
-using static Presentation.Helper.Validator;
 
 namespace Presentation
 {
@@ -10,6 +9,10 @@ namespace Presentation
         private bool ComboBoxContainsQuestion => _selectedCategory is not null && _comboBox.Items.Count > 0 && _comboBox.SelectedItem is not null;
         private bool ComboBoxIsReadyToAddQuestions => _selectedCategory is not null && _selectedQuestion is null && _comboBox.Items.Count == 0;
         private bool ComboBoxIsReadyToAddCategories => _selectedCategory is null && _comboBox.Items.Count == 0;
+
+        private bool _pauseControlAction = false;
+
+        private bool _acceptTextBoxTextChanges = false;
 
         /// <summary>
         /// Disables visibility for form control elements
@@ -47,7 +50,7 @@ namespace Presentation
                 {
                     _flowLayoutPanel.Controls.Add(control);
                 }
-            }            
+            }
         }
 
         /// <summary>
@@ -61,7 +64,7 @@ namespace Presentation
             var control = _flowLayoutPanel.Controls[index];
             control.AutoSize = true;
             control.Width = _controlWidth;
-        }       
+        }
 
         /// <summary>
         /// Hides main menu buttons
@@ -77,10 +80,13 @@ namespace Presentation
         /// <param name="text"></param>
         private void CreateAnswerRadiobutton(string text)
         {
-            var r = new RadioButton() { Enabled = false, Text = text };
-            _radioButtonsForAnswers.Add(r);
-            AddControlToFlowLayoutPanel(r);
-            DisplayButtonReturnToMainMenu();
+            if (!_pauseControlAction)
+            {
+                var r = new RadioButton() { Enabled = false, Text = text };
+                _radioButtonsForAnswers.Add(r);
+                AddControlToFlowLayoutPanel(r);
+                DisplayButtonReturnToMainMenu();
+            }
         }
 
         /// <summary>
@@ -164,10 +170,12 @@ namespace Presentation
 
             _questionCreatingInProcess = default;
             _questionEditingInProcess = default;
+            _acceptTextBoxTextChanges = false;
 
             ClearComboBox();
+            _textBox.Clear();
 
-            _buttonDisplayAvailableQuestions.Enabled = _repo.GetAvailableQuestions().Count == 0 ? false : true;
+            _buttonDisplayAvailableQuestions.Enabled = _repo.GetAvailableQuestions().Count != 0;
 
             foreach (Control c in _flowLayoutPanel.Controls)
             {
@@ -195,12 +203,35 @@ namespace Presentation
             }
         }
 
+        private void DisplayPreviousQuestionInTextBox()
+        {
+            _pauseControlAction = true;
+            if (string.IsNullOrWhiteSpace(_textBox.Text) && _questionEditingInProcess && _selectedQuestion is not null)
+            {
+                _textBox.Text = _selectedQuestion.Text;
+            }
+            _pauseControlAction = false;
+        }
+
+        private void DisplayPreviousAnswerInTextBox()
+        {
+            _pauseControlAction = true;
+            if (string.IsNullOrWhiteSpace(_textBox.Text) && _questionEditingInProcess && _selectedQuestion is not null)
+            {
+                if (_selectedQuestion.Answers.Count > _answerInputCounter)
+                {
+                    _textBox.Text = _selectedQuestion.Answers[_answerInputCounter].Text;
+                }
+            }
+            _pauseControlAction = false;
+        }
+
         /// <summary>
         /// Exits application
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ButtonExitProgram_Click(object sender, EventArgs e)
+        private void OnButtonExitProgramClick(object sender, EventArgs e)
         {
             Application.Exit();
         }

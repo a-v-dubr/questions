@@ -22,6 +22,8 @@
             public const string ExitProgram = "Выход из программы";
             public const string ReturnToMainMenu = "Вернуться в меню";
             public const string EditQuestion = "Редактировать вопрос";
+            public const string ContinueEditing = "Продолжить редактирование";
+            public const string FinishEditing = "Завершить редактирование";
             public const string SaveTextChanges = "Сохранить изменения";
         }
 
@@ -32,6 +34,7 @@
             public const string ChooseOrCreateCategory = "Выберите категорию вопросов или создайте новую:";
             public const string AvailableCategories = "Доступные категории:";
             public const string CreateCategory = "Введите название новой категории:";
+            public readonly static string ChooseNewCategory = "Выберите новую категорию для вопроса \"{0}\"";
 
             public readonly static string ChooseQuestionInCategory = "Выберите вопрос в категории \"{0}\":";
             public const string NoQuestionsAvailable = "Доступных вопросов нет. Вы можете добавить новый вопрос.";
@@ -45,7 +48,10 @@
             public const string CorrectAnswer = "Вы дали правильный ответ!";
             public const string WrongAnswer = "Вы дали неправильный ответ!";
             public const string EmptyFormsError = "Чтобы сохранить изменения, заполните все формы";
-            public const string TypeNewTextValues = "Введите новые значения вопроса и ответов:";
+
+            public readonly static string QuestionCategoryChanged = "Вопрос \"{0}\" будет перемещён в категорию \"{1}\".";
+            public readonly static string QuestionCategoryUnchanged = "Вопрос \"{0}\" остаётся в категории \"{1}\".";
+            public readonly static string QuestionIsEditing = "Редактируется вопрос \"{0}\" в категории \"{1}\":";
         }
 
         public static class PlaceholderTexts

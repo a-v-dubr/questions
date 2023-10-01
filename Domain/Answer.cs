@@ -16,6 +16,7 @@ namespace Domain
         public bool IsCorrect { get; private set; }
         public int QuestionId { get; private set; }
         public Question ActualQuestion { get; private set; }
+        public bool Enabled { get; private set; }
 
 #pragma warning disable
         private Answer() { }
@@ -27,6 +28,7 @@ namespace Domain
             ActualQuestion = actualQuestion;
             Text = text;
             IsCorrect = isCorrect;
+            Enabled = true;
         }
 
         /// <summary>
@@ -56,6 +58,14 @@ namespace Domain
         {
             ValidateNotNullOrWhiteSpaceText(text);
             Text = text;
+        }
+
+        /// <summary>
+        /// Sets Enabled property to false
+        /// </summary>
+        public void Disable()
+        {
+            Enabled = false;
         }
     }
 }
