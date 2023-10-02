@@ -114,16 +114,24 @@ namespace Infrastructure
                 if (updatingQuestion is not null)
                 {
                     var removingAnswers = context.Answers.ToList().FindAll(a => a.QuestionId == id);
-                    context.Answers.RemoveRange(removingAnswers);
 
                     context.Entry(updatingQuestion).State = EntityState.Detached;
-
                     updatingQuestion.UpdateQuestionText(question.Text);
                     updatingQuestion.ChangeCategory(question.QuestionCategory);
                     updatingQuestion.ChangeAnswers(question.Answers);
                     updatingQuestion.UpdateRepetitionProperties(question);
-
                     context.Entry(updatingQuestion).State = EntityState.Modified;
+
+                    foreach (var a in updatingQuestion.Answers)
+                    {
+                        context.Answers.Attach(a);
+                    }
+
+                    foreach (var a in removingAnswers)
+                    {
+                        context.Answers.Attach(a);
+                        context.Answers.Remove(a);
+                    }                    
                 }
 
                 context.SaveChanges();
