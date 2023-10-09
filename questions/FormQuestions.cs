@@ -71,8 +71,9 @@ namespace Presentation
         {
             if (_repo.GetAvailableQuestions().Any())
             {
-                _buttonChooseAvailableQuestion.Text = LabelTexts.AvailableCategories;
-                if (_selectedCategory is null && _comboBox.Items.Count == 0)
+                _buttonChooseAvailableQuestion.Text = ButtonTexts.ChooseAvailableCategory;
+
+                if (ComboBoxIsReadyToAddCategories)
                 {
                     if (GetAvailableCategories().Any())
                     {
@@ -130,12 +131,11 @@ namespace Presentation
             if (ComboBoxIsReadyToAddCategories)
             {
                 _labelUserActionsHelper.Text = LabelTexts.AvailableCategories;
-                AddCategoriesToComboBox(_categories);
-                DisplayControls(_comboBox);
+                DisplayComboBoxWithCategories();
                 TrySetOrCreateCategory();
             }
 
-            if (_selectedCategory is null && _comboBox.Items.Count != 0)
+            if (ComboBoxContainsCategory)
             {
                 TrySetOrCreateCategory();
             }
@@ -167,14 +167,11 @@ namespace Presentation
                 if ((_questionCreatingInProcess || _questionEditingInProcess) && _questionDTO is not null)
                 {
                     DisplayAnswersOfQuestionOrDTO();
-                    if (_questionCreatingInProcess || _questionEditingInProcess)
-                    {
-                        HideControls(_textBox, _buttonEditOrCreateQuestion);
-                        _radioButtonsForAnswers.ForEach(EnableAnswerRadioButton);
-                        _buttonForPickingAnswers.Text = ButtonTexts.AcceptCorrectAnswerInput;
-                    }
-                }
+                    HideControls(_textBox, _buttonEditOrCreateQuestion);
 
+                    _radioButtonsForAnswers.ForEach(EnableAnswerRadioButton);
+                    _buttonForPickingAnswers.Text = ButtonTexts.AcceptCorrectAnswerInput;
+                }
 
                 if (_questionEditingInProcess && _selectedCategory is not null && _selectedQuestion is not null && _questionDTO is null)
                 {
@@ -318,9 +315,8 @@ namespace Presentation
                 {
                     if (_categories.Count > 1)
                     {
-                        AddCategoriesToComboBox(_categories);
-                        DisplayControls(_comboBox);
                         _labelUserActionsHelper.Text = string.Format(LabelTexts.ChooseNewCategory, _selectedQuestion.Text);
+                        DisplayComboBoxWithCategories();                        
                     }
                     else
                     {
@@ -364,12 +360,14 @@ namespace Presentation
 
                 if (_acceptTextBoxTextChanges)
                 {
-                    _questionDTO.AnswersTexts.Add(_textBox.Text);
-                    CreateAnswerRadiobutton(_textBox.Text);
-                    _textBox.Clear();
-                    _acceptTextBoxTextChanges = false;
-                    _answerInputCounter++;
-                    DisplayPreviousAnswerInTextBox();
+                    if (_questionDTO.TryAddAnswerText(_textBox.Text))
+                    {
+                        CreateAnswerRadiobutton(_textBox.Text);
+                        _textBox.Clear();
+                        _acceptTextBoxTextChanges = false;
+                        _answerInputCounter++;
+                        DisplayPreviousAnswerInTextBox();
+                    }                    
                 }
 
                 if (_answerInputCounter >= Question.MinAnswersCount)
@@ -409,6 +407,11 @@ namespace Presentation
             }
         }
 
+        /// <summary>
+        /// Enables the button to accept default text in the textbox
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnTextBoxClick(object sender, EventArgs e)
         {
             if (_questionEditingInProcess)
@@ -448,8 +451,7 @@ namespace Presentation
                     if (_categories.Any())
                     {
                         _labelUserActionsHelper.Text = LabelTexts.AvailableCategories;
-                        AddCategoriesToComboBox(_categories);
-                        DisplayControls(_comboBox);
+                        DisplayComboBoxWithCategories();
                     }
                 }
 

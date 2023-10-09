@@ -6,6 +6,8 @@ namespace Presentation
     public partial class FormQuestions
     {
         private const int _controlWidth = 400;
+
+        private bool ComboBoxContainsCategory => _selectedCategory is null && _comboBox.Items.Count > 0 && _comboBox.SelectedItem is not null;
         private bool ComboBoxContainsQuestion => _selectedCategory is not null && _comboBox.Items.Count > 0 && _comboBox.SelectedItem is not null;
         private bool ComboBoxIsReadyToAddQuestions => _selectedCategory is not null && _selectedQuestion is null && _comboBox.Items.Count == 0;
         private bool ComboBoxIsReadyToAddCategories => _selectedCategory is null && _comboBox.Items.Count == 0;
@@ -203,6 +205,9 @@ namespace Presentation
             }
         }
 
+        /// <summary>
+        /// Adds the question text to the textbox without raising text changing event
+        /// </summary>
         private void DisplayPreviousQuestionInTextBox()
         {
             _pauseControlAction = true;
@@ -213,6 +218,9 @@ namespace Presentation
             _pauseControlAction = false;
         }
 
+        /// <summary>
+        /// Adds the answer's option text to the textbox without raising text changing event
+        /// </summary>
         private void DisplayPreviousAnswerInTextBox()
         {
             _pauseControlAction = true;
@@ -225,6 +233,18 @@ namespace Presentation
             }
             _pauseControlAction = false;
         }
+
+        /// <summary>
+        /// Adds all existing categories to the combobox and then displays combobox
+        /// </summary>
+        private void DisplayComboBoxWithCategories()
+        {
+            if (_categories.Any())
+            {
+                AddCategoriesToComboBox(_categories);
+                DisplayControls(_comboBox);
+            }            
+        }        
 
         /// <summary>
         /// Exits application
