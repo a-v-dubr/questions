@@ -12,7 +12,7 @@ namespace Presentation
             // see https://aka.ms/applicationconfiguration.
 
             ApplicationConfiguration.Initialize();
-            Application.Run(new FormQuestions());
+            Application.Run(new FormQuestionsMenu());
         }
     }
 }

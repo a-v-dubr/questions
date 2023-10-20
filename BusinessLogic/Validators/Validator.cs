@@ -21,7 +21,7 @@ namespace BusinessLogic
 
         public static void ValidateIfRepositoryContainsQuestion(QuestionRepository repo, Question question)
         {
-            if (!repo.Contains(question))
+            if (repo.GetQuestionById(question.Id) is null)
             {
                 throw new ArgumentException($"Cannot create object because {nameof(repo)} instance doesn't contain {nameof(question)} instance");
             }

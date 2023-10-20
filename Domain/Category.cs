@@ -11,7 +11,7 @@ namespace Domain
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; private set; }
+        public int Id { get; set; }
         public string Title { get; private set; }
         public List<Question> Questions { get; private set; } = new();
         public bool Enabled { get; private set; }
@@ -44,5 +44,51 @@ namespace Domain
             ValidateNotNullOrWhiteSpaceText(newTItle);
             Title = newTItle;
         }
+
+        /// <summary>
+        /// Sets new questions for the category
+        /// </summary>
+        /// <param name="newQuestions"></param>
+        public void UpdateCategoryQuestions(List<Question> newQuestions)
+        {
+            if (newQuestions is not null)
+            {
+                Questions = newQuestions;
+            }
+        }
+
+        /// <summary>
+        /// Adds unique question to the questions' list
+        /// </summary>
+        /// <param name="question"></param>
+        public void TryAddQuestion(Question question)
+        {
+            if (question is not null && question.QuestionCategory.Id == Id && !Questions.Contains(question))
+            {
+                Questions.Add(question);
+            }
+        }
+
+        /// <summary>
+        /// Removes the question from category
+        /// </summary>
+        /// <param name="question"></param>
+        public void RemoveQuestion(Question question)
+        {
+            if (question is not null && Questions.Contains(question))
+            {
+                Questions.Remove(question);
+            }
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+

@@ -1,11 +1,11 @@
 ﻿using Domain;
 
-namespace Presentation.DTOClasses
+namespace Presentation
 {
     /// <summary>
     /// Initializes a new instance of QuestionDTO class
     /// </summary>
-    internal class QuestionDTO
+    public class QuestionDTO
     {
         public string? QuestionText { get; set; }
         public List<Answer> Answers { get; private set; } = new();

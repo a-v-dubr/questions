@@ -28,7 +28,7 @@ namespace Domain
         public Repetitions RepeateInPeriod { get; private set; } = Repetitions.EnableAsCreated;
         public DateTime AvailableAt { get; private set; }
         public List<Answer> Answers { get; private set; } = new();
-        public int CategoryId { get; private set; }
+        public int CategoryId { get; set; }
         public Category QuestionCategory { get; private set; }
         public bool Enabled { get; private set; }
 

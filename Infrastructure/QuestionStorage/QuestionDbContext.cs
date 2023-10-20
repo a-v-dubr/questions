@@ -10,9 +10,21 @@ namespace Infrastructure
     {
         private readonly static string _connectionString = $"Data Source={QuestionRepository.DbName}";
 
-        internal DbSet<Question> Questions { get; set; }
-        internal DbSet<Answer> Answers { get; set; }
-        internal DbSet<Category> Categories { get; set; }
+        internal DbSet<Question> Questions { get; private set; }
+        internal DbSet<Answer> Answers { get; private set; }
+        internal DbSet<Category> Categories { get; private set; }
+
+        public QuestionDbContext()
+        {
+            try
+            {
+                Database.Migrate();
+            }
+            catch (Exception)
+            {
+                Database.EnsureDeleted();
+            }
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

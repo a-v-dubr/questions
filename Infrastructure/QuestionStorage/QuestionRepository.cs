@@ -10,6 +10,11 @@ namespace Infrastructure
     public class QuestionRepository : IEnumerable<Question>
     {
         public const string DbName = "QuestionsDatabase.db";
+
+        public const string DefautCategoryTitle = "Вопросы без категории";
+        public const int DefautCategoryId = 1;
+        public static Category? DefaultCategory { get; private set; }
+
         public readonly List<Category> Categories = new();
         private readonly List<Question> _questions = new();
 
@@ -17,7 +22,7 @@ namespace Infrastructure
         /// Adds question to the repository
         /// </summary>
         /// <param name="question"></param>
-        public void AddQuestionToRepository(Question question)
+        private void AddQuestionToRepository(Question question)
         {
             if (!_questions.Any(q => q.Id == question.Id) && question.Answers.Any(a => a.IsCorrect))
             {
@@ -35,11 +40,15 @@ namespace Infrastructure
         /// <param name="question"></param>
         public void AddQuestionToDb(Question question)
         {
+            AddQuestionToRepository(question);
+
             if (_questions.Contains(question))
             {
                 using var context = new QuestionDbContext();
                 context.Database.Migrate();
                 context.Database.EnsureCreated();
+
+                context.Categories.Include(c => c.Questions).ThenInclude(c => c.Answers);
 
                 if (context.Categories.Local.SingleOrDefault(c => c.Id == question.QuestionCategory.Id) is null)
                 {
@@ -59,18 +68,22 @@ namespace Infrastructure
         {
             using var context = new QuestionDbContext();
             context.Database.Migrate();
-            var categories = context.Categories.Include(c => c.Questions).ThenInclude(c => c.Answers).ToList();
 
+            var categories = context.Categories.Include(c => c.Questions).ThenInclude(c => c.Answers).ToList();
+            TrySetDefaultCategory(categories);
+
+            Categories.Clear();
             _questions.Clear();
+
             foreach (var c in categories)
             {
-                if (!Categories.Any(cat => cat.Id == c.Id) && c.Enabled)
+                if (c.Enabled)
                 {
                     Categories.Add(c);
                 }
                 foreach (var q in c.Questions)
                 {
-                    if (q.RepeateInPeriod != Question.Repetitions.Disable && q.Enabled)
+                    if (q.Enabled)
                     {
                         _questions.Add(q);
                     }
@@ -113,25 +126,8 @@ namespace Infrastructure
 
                 if (updatingQuestion is not null)
                 {
-                    var removingAnswers = context.Answers.ToList().FindAll(a => a.QuestionId == id);
-
-                    context.Entry(updatingQuestion).State = EntityState.Detached;
-                    updatingQuestion.UpdateQuestionText(question.Text);
                     updatingQuestion.ChangeCategory(question.QuestionCategory);
-                    updatingQuestion.ChangeAnswers(question.Answers);
                     updatingQuestion.UpdateRepetitionProperties(question);
-                    context.Entry(updatingQuestion).State = EntityState.Modified;
-
-                    foreach (var a in updatingQuestion.Answers)
-                    {
-                        context.Answers.Attach(a);
-                    }
-
-                    foreach (var a in removingAnswers)
-                    {
-                        context.Answers.Attach(a);
-                        context.Answers.Remove(a);
-                    }                    
                 }
 
                 context.SaveChanges();
@@ -199,6 +195,15 @@ namespace Infrastructure
             foreach (var q in _questions)
             {
                 yield return q;
+            }
+        }
+
+        private static void TrySetDefaultCategory(List<Category> categories)
+        {
+            if (DefaultCategory is null)
+            {
+                DefaultCategory = categories.SingleOrDefault(c => c.Id == DefautCategoryId);
+                DefaultCategory ??= new(DefautCategoryTitle);
             }
         }
     }
