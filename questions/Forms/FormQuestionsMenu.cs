@@ -69,6 +69,7 @@ namespace Presentation
         protected override void DisplayMenuOptions(object? sender = default, EventArgs? e = default)
         {
             DisplayMenuControls();
+            DataHandler.ResetSelectedCategoryToDefault();
 
             var availableCategories = DataHandler.GetAvailableCategories();
             if (availableCategories.Count > 0)
