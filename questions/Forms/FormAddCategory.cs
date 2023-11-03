@@ -43,6 +43,8 @@ namespace Presentation
             _buttonReturnToAddingQuestions.Visible = false;
             _flowLayoutPanel.Controls.Add(_buttonReturnToAddingQuestions);
             _buttonReturnToAddingQuestions.Click += OnButtonReturnToAddingQuestionsClick!;
+
+            Text = FormsTitles.AddCategoryForm;
         }
 
         public FormAddCategory(FormQuestionsBase form)

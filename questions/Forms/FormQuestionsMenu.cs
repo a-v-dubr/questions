@@ -51,6 +51,8 @@ namespace Presentation
             _buttonChangeCategory.Visible = false;
             _flowLayoutPanel.Controls.Add(_buttonChangeCategory);
             _buttonChangeCategory.Click += OnButtonChangeCategoryClick!;
+
+            Text = FormsTitles.AvailableQuestionsForm;
         }
 
         public FormQuestionsMenu()

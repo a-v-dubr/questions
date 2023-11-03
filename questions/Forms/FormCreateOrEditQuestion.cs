@@ -52,6 +52,8 @@ namespace Presentation
             _buttonDisplayMenu.Text = ButtonTexts.ContinueCreatingQuestions;
             _buttonDisplayMenu.Visible = false;
             _buttonDisplayMenu.Click += OnButtonDisplayMenu!;
+
+            Text = FormsTitles.AddQuestionsForm;
         }
         #endregion
 

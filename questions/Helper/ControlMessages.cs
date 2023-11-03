@@ -51,5 +51,12 @@
         {
             public readonly static string AvailableCategories = "{0} (доступно вопросов: {1})";
         }
+
+        public static class FormsTitles
+        {
+            public const string AvailableQuestionsForm = "Доступные вопросы";
+            public const string AddQuestionsForm = "Добавление новых вопросов";
+            public const string AddCategoryForm = "Выбор категории";
+        }
     }
 }
