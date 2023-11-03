@@ -12,7 +12,7 @@ namespace Presentation
 
         protected bool _acceptTextBoxTextChanges = false;
 
-        protected abstract void InitializeControls();
+      //  protected abstract void InitializeControls();
 
         public FormQuestionsBase()
         {

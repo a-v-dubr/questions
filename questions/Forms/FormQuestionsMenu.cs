@@ -21,8 +21,10 @@ namespace Presentation
         protected Button _buttonDisplayMenuOptions = new();
         private readonly Button _buttonChangeCategory = new();
 
-        protected override void InitializeControls()
+        protected override void InitializeComponent()
         {
+            base.InitializeComponent();
+
             ListBoxForCategories.Visible = false;
             ListBoxForCategories.SelectionMode = SelectionMode.One;
             _flowLayoutPanel.Controls.Add(ListBoxForCategories);
@@ -54,12 +56,6 @@ namespace Presentation
         public FormQuestionsMenu()
         {
             DisplayMenuOptions();
-        }
-
-        protected override void InitializeComponent()
-        {
-            base.InitializeComponent();
-            InitializeControls();
         }
         #endregion
 
@@ -274,9 +270,7 @@ namespace Presentation
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnFormsForEditingQuestionClosing(object sender, FormClosingEventArgs e)
-        {
-            int defaultCapacity = QuestionRepository.DefaultCategory.Questions.Count;
-
+        {            
             ResetInputValues();
             DisplayMenuOptions();
         }

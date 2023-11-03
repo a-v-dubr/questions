@@ -29,11 +29,7 @@ namespace Presentation
         protected override void InitializeComponent()
         {
             base.InitializeComponent();
-            InitializeControls();
-        }
 
-        protected override void InitializeControls()
-        {
             _flowLayoutPanel.Controls.Add(_textBoxForQuestionTitle);
             TextBox.TextChanged += OnTextBoxTextChanged!;
 

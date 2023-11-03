@@ -17,8 +17,10 @@ namespace Presentation
         private ListBox _listBox = new();
         public ListBox ListBoxForCategories { get { return _listBox; } set { _listBox = new(); } }
 
-        protected override void InitializeControls()
+        protected override void InitializeComponent()
         {
+            base.InitializeComponent();
+
             _flowLayoutPanel.Controls.Add(ListBoxForCategories);
             ListBoxForCategories.SelectedIndexChanged += OnListBoxForCategoriesSelectedIndexChanged!;
 
@@ -47,12 +49,6 @@ namespace Presentation
         {
             DataHandler = form.DataHandler;
             DisplayMenuOptions();
-        }
-
-        protected override void InitializeComponent()
-        {
-            base.InitializeComponent();
-            InitializeControls();
         }
         #endregion
 
