@@ -5,15 +5,12 @@ using Infrastructure;
 
 namespace Presentation.Forms
 {
-    public partial class AddQuestionsForm : Form, ITitlesTextBox, IAnswerRadioButtonsForm
+    public partial class AddQuestionsForm : Form
     {
         private readonly DataHandler _dataHandler;
         protected RadioButton? _answerInput;
         protected int _answerInputCounter = 0;
         protected bool _acceptTextBoxTextChanges = false;
-
-        public TextBox TextBox { get { return _textBoxForQuestionTitle; } }        
-        public List<System.Windows.Forms.RadioButton> RadioButtonsForAnswers { get { return _radioButtons; } }
 
         private bool QuestionTextAndAnswersReceived => _dataHandler.QuestionDTO is not null && _dataHandler.SelectedQuestion is null && _answerInput is null;
         private bool QuestionDTOIsReadyToMapping => _dataHandler.QuestionDTO is not null && _dataHandler.SelectedQuestion is null && _answerInput is not null;
@@ -34,7 +31,7 @@ namespace Presentation.Forms
             if (_dataHandler.SelectedQuestion is null)
             {
                 _buttonAcceptQuestionText.Text = ButtonTexts.AcceptQuestionText;
-                ControlsHelper.DisplayControls(TextBox);
+                ControlsHelper.DisplayControls(_textBoxForQuestionTitle);
             }
         }
 
@@ -42,7 +39,7 @@ namespace Presentation.Forms
         {
             foreach (Control c in _flowLayoutPanel.Controls)
             {
-                if (c == TextBox || c == _label)
+                if (c == _textBoxForQuestionTitle || c == _label)
                 {
                     ControlsHelper.DisplayControls(c);
                 }
@@ -69,14 +66,14 @@ namespace Presentation.Forms
         /// <param name="e"></param>
         public void OnTextBoxTextChanged(object sender, EventArgs e)
         {
-            if (Validator.UserInputIsValid(TextBox.Text))
+            if (Validator.UserInputIsValid(_textBoxForQuestionTitle.Text))
             {
                 _acceptTextBoxTextChanges = true;
                 _buttonAcceptQuestionText.Enabled = true;
                 ControlsHelper.DisplayControls(_buttonAcceptQuestionText);
             }
 
-            if (!Validator.UserInputIsValid(TextBox.Text))
+            if (!Validator.UserInputIsValid(_textBoxForQuestionTitle.Text))
             {
                 _acceptTextBoxTextChanges = false;
                 _buttonAcceptQuestionText.Enabled = false;
@@ -92,8 +89,8 @@ namespace Presentation.Forms
         {
             if (_dataHandler.QuestionDTO is null)
             {
-                _dataHandler.SetQuestionDTO(new() { QuestionCategory = QuestionRepository.DefaultCategory, QuestionText = TextBox.Text });
-                TextBox.Clear();
+                _dataHandler.SetQuestionDTO(new() { QuestionCategory = QuestionRepository.DefaultCategory, QuestionText = _textBoxForQuestionTitle.Text });
+                _textBoxForQuestionTitle.Clear();
             }
 
             if (_dataHandler.QuestionDTO is not null)
@@ -101,10 +98,10 @@ namespace Presentation.Forms
                 _label.Text = string.Format(LabelTexts.DisplayQuestionWhileAddingAnswers, _dataHandler.QuestionDTO.QuestionText);
                 _buttonAcceptQuestionText.Text = ButtonTexts.AcceptAnswerText;
 
-                if (_acceptTextBoxTextChanges && _dataHandler.QuestionDTO.TryAddAnswerText(TextBox.Text))
+                if (_acceptTextBoxTextChanges && _dataHandler.QuestionDTO.TryAddAnswerText(_textBoxForQuestionTitle.Text))
                 {
-                    (this as IAnswerRadioButtonsForm).CreateAnswerRadiobutton(TextBox.Text);
-                    TextBox.Clear();
+                    CreateAnswerRadiobutton(_textBoxForQuestionTitle.Text);
+                    _textBoxForQuestionTitle.Clear();
                     _answerInputCounter++;
                 }
 
@@ -127,8 +124,8 @@ namespace Presentation.Forms
             if (QuestionTextAndAnswersReceived)
             {
                 DisplayAnswersOfQuestionOrDTO();
-                ControlsHelper.HideControls(TextBox, _buttonFinishAddingAnswers);
-                RadioButtonsForAnswers.ForEach((this as IAnswerRadioButtonsForm).EnableAnswerRadioButton);
+                ControlsHelper.HideControls(_textBoxForQuestionTitle, _buttonFinishAddingAnswers);
+                _radioButtons.ForEach(EnableAnswerRadioButton);
                 _label.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler?.QuestionDTO?.QuestionText);
                 _buttonAcceptQuestionText.Text = ButtonTexts.AcceptCorrectAnswerInput;
             }
@@ -145,8 +142,8 @@ namespace Presentation.Forms
 
                     _label.Text = string.Format(LabelTexts.QuestionIsSavedAndAvailable, _dataHandler.SelectedQuestion?.Text);
 
-                    ControlsHelper.RemoveControlFromFlowLayoutPanel(RadioButtonsForAnswers, _flowLayoutPanel);
-                    RadioButtonsForAnswers.Clear();
+                    ControlsHelper.RemoveControlFromFlowLayoutPanel(_radioButtons, _flowLayoutPanel);
+                    _radioButtons.Clear();
 
                     ControlsHelper.HideControls(_buttonFinishAddingAnswers, _buttonAcceptQuestionText);
                     ControlsHelper.DisplayControls(_buttonChangeQuestionCategory, _buttonDisplayMenu);
@@ -170,7 +167,7 @@ namespace Presentation.Forms
             _answerInput = (RadioButton)sender;
             if (_answerInput.Checked)
             {
-                foreach (var r in RadioButtonsForAnswers)
+                foreach (var r in _radioButtons)
                 {
                     if (r == _answerInput)
                     {
@@ -206,9 +203,9 @@ namespace Presentation.Forms
             {
                 if (Validator.AnswerTextsAreUnique(_dataHandler.QuestionDTO.AnswersTexts))
                 {
-                    foreach (var r in RadioButtonsForAnswers)
+                    foreach (var r in _radioButtons)
                     {
-                        (this as IAnswerRadioButtonsForm).EnableAnswerRadioButton(r);
+                        EnableAnswerRadioButton(r);
                     }
                     _label.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler.QuestionDTO.QuestionText);
                 }
@@ -219,6 +216,27 @@ namespace Presentation.Forms
         {
             _dataHandler.Repo.RetrieveQuestionsFromDb();
             DisplayMenuOptions();
+        }
+
+        /// <summary>
+        /// Creates disabled radiobutton with defined text and adds it to the flow layout panel
+        /// </summary>
+        /// <param name="text"></param>
+        private void CreateAnswerRadiobutton(string text)
+        {
+            var r = new RadioButton() { Enabled = false, Text = text };
+            _radioButtons.Add(r);
+            _flowLayoutPanel.AddControlToFlowLayoutPanel(r);
+        }
+
+        /// <summary>
+        /// Enables radiobutton and subscribes it to method for defining a correct answer or picking an answer 
+        /// </summary>
+        /// <param name="r"></param>
+        private void EnableAnswerRadioButton(RadioButton r)
+        {
+            r.CheckedChanged += OnRadioButtonForAnswerCheckedChanged!;
+            r.Enabled = true;
         }
     }
 }

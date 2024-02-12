@@ -4,13 +4,10 @@ using static Presentation.Helper.ControlMessages;
 
 namespace Presentation.Forms
 {
-    public partial class AddCategoryForm : Form, ITitlesTextBox, ICategoriesListBoxForm
+    public partial class AddCategoryForm : Form
     {
         private readonly DataHandler _dataHandler;
         protected bool _acceptTextBoxTextChanges = false;
-
-        public TextBox TextBox { get { return _textBoxForCategoryTitle; } }
-        public ListBox ListBoxForCategories { get { return _listBox; } }
 
         public AddCategoryForm(DataHandler handler)
         {
@@ -25,11 +22,11 @@ namespace Presentation.Forms
             {
                 foreach (var category in _dataHandler.Categories)
                 {
-                    ListBoxForCategories.Items.Add(category.Title);
+                    _listBox.Items.Add(category.Title);
                 }
 
                 _label.Text = LabelTexts.AvailableCategories;
-                ControlsHelper.DisplayControls(ListBoxForCategories);
+                ControlsHelper.DisplayControls(_listBox);
             }
             else
             {
@@ -41,8 +38,8 @@ namespace Presentation.Forms
         private void ResetInputValues()
         {
             _dataHandler.ResetSelectedCategoryToDefault();
-            ListBoxForCategories.Items.Clear();
-            TextBox.Clear();
+            _listBox.Items.Clear();
+            _textBoxForCategoryTitle.Clear();
         }
 
         /// <summary>
@@ -52,7 +49,7 @@ namespace Presentation.Forms
         /// <param name="e"></param>
         public void OnListBoxForCategoriesSelectedIndexChanged(object sender, EventArgs e)
         {
-            int selectedIndex = ListBoxForCategories.SelectedIndex;
+            int selectedIndex = _listBox.SelectedIndex;
 
             if (selectedIndex != -1)
             {
@@ -69,14 +66,14 @@ namespace Presentation.Forms
         /// <param name="e"></param>
         private void OnButtonAcceptCategoryClick(object sender, EventArgs e)
         {
-            if (_dataHandler.SelectedQuestion is not null && ListBoxForCategories.SelectedIndex != -1)
+            if (_dataHandler.SelectedQuestion is not null && _listBox.SelectedIndex != -1)
             {
-                _dataHandler.SetNewSelectedCategory(_dataHandler.Categories[ListBoxForCategories.SelectedIndex]);
+                _dataHandler.SetNewSelectedCategory(_dataHandler.Categories[_listBox.SelectedIndex]);
                 _dataHandler.EditSelectedQuestionCategory();
 
                 _label.Text = string.Format(LabelTexts.ActualQuestionCategory, _dataHandler.SelectedQuestion.Text, _dataHandler.SelectedQuestion.QuestionCategory.Title);
 
-                ControlsHelper.HideControls(_buttonAcceptCategory, _buttonCreateNewCategory, ListBoxForCategories);
+                ControlsHelper.HideControls(_buttonAcceptCategory, _buttonCreateNewCategory, _listBox);
                 ControlsHelper.DisplayControls(_buttonReturnToAddingQuestions);
             }
         }
@@ -88,28 +85,28 @@ namespace Presentation.Forms
         /// <param name="e"></param>
         private void OnButtonCreateCategoryClick(object sender, EventArgs e)
         {
-            ControlsHelper.HideControls(_buttonAcceptCategory, ListBoxForCategories);
+            ControlsHelper.HideControls(_buttonAcceptCategory, _listBox);
 
             if (_dataHandler.SelectedQuestion is not null)
             {
                 _label.Text = string.Format(LabelTexts.TypeCategoryTitle, _dataHandler.SelectedQuestion.Text);
 
-                if (!Validator.UserInputIsValid(TextBox.Text))
+                if (!Validator.UserInputIsValid(_textBoxForCategoryTitle.Text))
                 {
                     _buttonCreateNewCategory.Text = ButtonTexts.AcceptCategoryTitle;
                     _buttonCreateNewCategory.Enabled = false;
-                    ControlsHelper.DisplayControls(TextBox, _buttonCreateNewCategory);
+                    ControlsHelper.DisplayControls(_textBoxForCategoryTitle, _buttonCreateNewCategory);
                 }
                 else
                 {
                     Category? category;
-                    if (_dataHandler.Categories.Any(c => c.Title == TextBox.Text))
+                    if (_dataHandler.Categories.Any(c => c.Title == _textBoxForCategoryTitle.Text))
                     {
-                        category = _dataHandler.Categories.SingleOrDefault(c => c.Title == TextBox.Text);
+                        category = _dataHandler.Categories.SingleOrDefault(c => c.Title == _textBoxForCategoryTitle.Text);
                     }
                     else
                     {
-                        category = new Category(TextBox.Text);
+                        category = new Category(_textBoxForCategoryTitle.Text);
                         _dataHandler.Categories.Add(category);
                     }
 
@@ -124,7 +121,7 @@ namespace Presentation.Forms
                         _label.Text = string.Format(LabelTexts.ActualQuestionCategory, _dataHandler.SelectedQuestion.Text, _dataHandler.SelectedQuestion.QuestionCategory.Title);
                     }
 
-                    ControlsHelper.HideControls(TextBox, _buttonCreateNewCategory);
+                    ControlsHelper.HideControls(_textBoxForCategoryTitle, _buttonCreateNewCategory);
                     ControlsHelper.DisplayControls(_buttonReturnToAddingQuestions);
                 }
             }
@@ -137,7 +134,7 @@ namespace Presentation.Forms
         /// <param name="e"></param>
         public void OnTextBoxTextChanged(object sender, EventArgs e)
         {
-            if (Validator.UserInputIsValid(TextBox.Text))
+            if (Validator.UserInputIsValid(_textBoxForCategoryTitle.Text))
             {
                 _acceptTextBoxTextChanges = true;
                 _buttonCreateNewCategory.Enabled = true;

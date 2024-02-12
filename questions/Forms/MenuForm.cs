@@ -13,15 +13,13 @@ using static Presentation.Helper.ControlMessages;
 
 namespace Presentation.Forms
 {
-    public partial class MenuForm : Form, ICategoriesListBoxForm, IAnswerRadioButtonsForm
+    public partial class MenuForm : Form
     {
         private DataHandler _dataHandler;
         protected RadioButton? _answerInput;
         protected int _answerInputCounter = 0;
 
-        public ListBox ListBoxForCategories { get { return _listBox; } }        
-        public List<System.Windows.Forms.RadioButton> RadioButtonsForAnswers { get { return _radioButtons; } }
-        private bool CategoryIsChosenInListBox => _dataHandler.SelectedCategory is null && ListBoxForCategories.SelectedIndex != -1;
+        private bool CategoryIsChosenInListBox => _dataHandler.SelectedCategory is null && _listBox.SelectedIndex != -1;
         private List<Question> AvailableQuestions => _dataHandler.Repo.GetAvailableQuestions().Where(q => q.QuestionCategory.Id == _dataHandler.SelectedCategory?.Id).ToList();
 
 
@@ -40,14 +38,14 @@ namespace Presentation.Forms
             var availableCategories = _dataHandler.GetAvailableCategories();
             if (availableCategories.Count > 0)
             {
-                (this as ICategoriesListBoxForm).AddCategoriesToListBox(availableCategories);
+                AddCategoriesToListBox(availableCategories);
 
                 _label.Text = LabelTexts.AvailableCategoriesAndQuestions;
-                ControlsHelper.DisplayControls(ListBoxForCategories, _label, _buttonAddNewQuestion);
+                ControlsHelper.DisplayControls(_listBox, _label, _buttonAddNewQuestion);
             }
             else
             {
-                ControlsHelper.HideControls(ListBoxForCategories);
+                ControlsHelper.HideControls(_listBox);
                 _label.Text = LabelTexts.NoQuestionsAvailable;
                 ControlsHelper.DisplayControls(_buttonAddNewQuestion);
             }
@@ -57,7 +55,7 @@ namespace Presentation.Forms
         {
             foreach (Control c in _flowLayoutPanel.Controls)
             {
-                if (c == _buttonAddNewQuestion || c == ListBoxForCategories || c == _label)
+                if (c == _buttonAddNewQuestion || c == _listBox || c == _label)
                 {
                     ControlsHelper.DisplayControls(c);
                 }
@@ -81,7 +79,7 @@ namespace Presentation.Forms
         /// <param name="e"></param>
         public void OnListBoxForCategoriesSelectedIndexChanged(object sender, EventArgs e)
         {
-            int selectedIndex = ListBoxForCategories.SelectedIndex;
+            int selectedIndex = _listBox.SelectedIndex;
 
             if (selectedIndex != -1)
             {
@@ -97,16 +95,16 @@ namespace Presentation.Forms
         /// <param name="e"></param>
         private void OnButtonAnswerQuestionsFromAvailableCategoryClick(object sender, EventArgs e)
         {
-            ControlsHelper.RemoveControlFromFlowLayoutPanel(RadioButtonsForAnswers, _flowLayoutPanel);
+            ControlsHelper.RemoveControlFromFlowLayoutPanel(_radioButtons, _flowLayoutPanel);
 
             if (CategoryIsChosenInListBox)
             {
-                _dataHandler.SetNewSelectedCategory(_dataHandler.GetAvailableCategories()[ListBoxForCategories.SelectedIndex]);
+                _dataHandler.SetNewSelectedCategory(_dataHandler.GetAvailableCategories()[_listBox.SelectedIndex]);
             }
 
             if (_dataHandler.SelectedCategory is not null)
             {
-                ControlsHelper.HideControls(ListBoxForCategories);
+                ControlsHelper.HideControls(_listBox);
 
                 if (AvailableQuestions.Count > 0)
                 {
@@ -116,7 +114,7 @@ namespace Presentation.Forms
                         _label.Text = string.Format(LabelTexts.ChooseAnswer, _dataHandler.SelectedQuestion.Text);
 
                         ControlsHelper.HideControls(_buttonAddNewQuestion, _buttonAnswerQuestionsFromAvailableCategory);
-                        (this as IAnswerRadioButtonsForm).DisplayAnswersOfQuestionOrDTO();
+                        DisplayAnswersOfQuestionOrDTO();
 
                         ControlsHelper.DisplayControlBelowOthersInFlowPanel(_flowLayoutPanel, _buttonChangeCategory);
                         ControlsHelper.DisplayControlBelowOthersInFlowPanel(_flowLayoutPanel, _buttonDisplayMenuOptions);
@@ -140,7 +138,7 @@ namespace Presentation.Forms
             _answerInput = (RadioButton)sender;
             if (_answerInput.Checked)
             {
-                foreach (var r in RadioButtonsForAnswers)
+                foreach (var r in _radioButtons)
                 {
                     if (r == _answerInput)
                     {
@@ -191,9 +189,9 @@ namespace Presentation.Forms
             {
                 for (int i = 0; i < _dataHandler.SelectedQuestion.Answers.Count; i++)
                 {
-                    (this as IAnswerRadioButtonsForm).CreateAnswerRadiobutton(_dataHandler.SelectedQuestion.Answers[i].Text);
-                    (this as IAnswerRadioButtonsForm).EnableAnswerRadioButton(RadioButtonsForAnswers.Last());
-                    ControlsHelper.DisplayControls(RadioButtonsForAnswers.ToArray());
+                    CreateAnswerRadiobutton(_dataHandler.SelectedQuestion.Answers[i].Text);
+                    EnableAnswerRadioButton(_radioButtons.Last());
+                    ControlsHelper.DisplayControls(_radioButtons.ToArray());
                 }
             }
         }
@@ -204,8 +202,8 @@ namespace Presentation.Forms
         private void DisplayAnswerAttemptResult(bool answerIsCorrect)
         {
             ControlsHelper.HideControls(_buttonChangeCategory);
-            ControlsHelper.RemoveControlFromFlowLayoutPanel(RadioButtonsForAnswers, _flowLayoutPanel);
-            RadioButtonsForAnswers.Clear();
+            ControlsHelper.RemoveControlFromFlowLayoutPanel(_radioButtons, _flowLayoutPanel);
+            _radioButtons.Clear();
 
             _label.Text = (answerIsCorrect ? LabelTexts.CorrectAnswer : LabelTexts.WrongAnswer) + string.Format(LabelTexts.WhenQuestionIsAvailable, _dataHandler.SelectedQuestion?.AvailableAt);
         }
@@ -243,6 +241,49 @@ namespace Presentation.Forms
         {
             ResetInputValues();
             DisplayMenuOptions(null, null);
+        }
+
+        /// <summary>
+        /// Adds unique categories to the listbox
+        /// </summary>
+        /// <param name="categories"></param>
+        private void AddCategoriesToListBox(List<Category> categories)
+        {
+            if (_listBox.Items.Count > 0)
+            {
+                _listBox.Items.Clear();
+            }
+
+            int questionsCount;
+            foreach (var c in categories)
+            {
+                questionsCount = c.Questions.Where(q => q.AvailableAt <= DateTime.Now).Count();
+                if (questionsCount > 0)
+                {
+                    _listBox.Items.Add(string.Format(ListBoxTexts.AvailableCategories, c.Title, questionsCount));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates disabled radiobutton with defined text and adds it to the flow layout panel
+        /// </summary>
+        /// <param name="text"></param>
+        private void CreateAnswerRadiobutton(string text)
+        {
+            var r = new RadioButton() { Enabled = false, Text = text };
+            _radioButtons.Add(r);
+            _flowLayoutPanel.AddControlToFlowLayoutPanel(r);
+        }
+
+        /// <summary>
+        /// Enables radiobutton and subscribes it to method for defining a correct answer or picking an answer 
+        /// </summary>
+        /// <param name="r"></param>
+        private void EnableAnswerRadioButton(RadioButton r)
+        {
+            r.CheckedChanged += OnRadioButtonForAnswerCheckedChanged!;
+            r.Enabled = true;
         }
     }
 }
