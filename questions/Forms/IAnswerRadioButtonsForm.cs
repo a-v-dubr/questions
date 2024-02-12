@@ -1,4 +1,6 @@
-﻿namespace Presentation.Forms
+﻿using Presentation.Helper;
+
+namespace Presentation.Forms
 {
     /// <summary>
     /// Defines the contract for the forms which use radiobuttons
@@ -17,8 +19,20 @@
             var r = new RadioButton() { Enabled = false, Text = text };
             RadioButtonsForAnswers.Add(r);
 
-            var form = this as FormQuestionsBase;
-            form?.AddControlToFlowLayoutPanel(r);
+            var form = this as Form;
+            FlowLayoutPanel? panel = null;
+
+            if (form is not null)
+            {
+                foreach (var c in form.Controls)
+                {
+                    if (c is FlowLayoutPanel)
+                    {
+                        panel = c as FlowLayoutPanel;
+                    }
+                }
+                panel?.AddControlToFlowLayoutPanel(r);
+            }    
         }
 
         /// <summary>

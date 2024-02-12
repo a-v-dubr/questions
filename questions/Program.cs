@@ -1,3 +1,5 @@
+using Presentation.Forms;
+
 namespace Presentation
 {
     internal static class Program
@@ -12,7 +14,7 @@ namespace Presentation
             // see https://aka.ms/applicationconfiguration.
 
             ApplicationConfiguration.Initialize();
-            Application.Run(new FormQuestionsMenu());
+            Application.Run(new MenuForm());
         }
     }
 }
