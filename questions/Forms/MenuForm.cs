@@ -22,12 +22,13 @@ namespace Presentation.Forms
         private bool CategoryIsChosenInListBox => _dataHandler.SelectedCategory is null && _listBox.SelectedIndex != -1;
         private List<Question> AvailableQuestions => _dataHandler.Repo.GetAvailableQuestions().Where(q => q.QuestionCategory.Id == _dataHandler.SelectedCategory?.Id).ToList();
 
-
         public MenuForm()
         {
             InitializeComponent();
             _dataHandler = new DataHandler();
             DisplayMenuOptions(null, null);
+            _radioButtons = new();
+            _listBox.AutoSize = true;
         }
 
        private void DisplayMenuOptions(object? obj, EventArgs? e)
@@ -40,7 +41,7 @@ namespace Presentation.Forms
             {
                 AddCategoriesToListBox(availableCategories);
 
-                _label.Text = LabelTexts.AvailableCategoriesAndQuestions;
+                _label.Text = "Выберите категорию вопросов:";
                 ControlsHelper.DisplayControls(_listBox, _label, _buttonAddNewQuestion);
             }
             else
@@ -99,7 +100,7 @@ namespace Presentation.Forms
 
             if (CategoryIsChosenInListBox)
             {
-                _dataHandler.SetNewSelectedCategory(_dataHandler.GetAvailableCategories()[_listBox.SelectedIndex]);
+                _dataHandler.SetNewSelectedCategory(_dataHandler.GetAvailableCategories()[_listBox.SelectedIndex]);                
             }
 
             if (_dataHandler.SelectedCategory is not null)
@@ -116,6 +117,7 @@ namespace Presentation.Forms
                         ControlsHelper.HideControls(_buttonAddNewQuestion, _buttonAnswerQuestionsFromAvailableCategory);
                         DisplayAnswersOfQuestionOrDTO();
 
+                        ControlsHelper.DisplayControlBelowOthersInFlowPanel(_flowLayoutPanel, _buttonForPickingAnswers);
                         ControlsHelper.DisplayControlBelowOthersInFlowPanel(_flowLayoutPanel, _buttonChangeCategory);
                         ControlsHelper.DisplayControlBelowOthersInFlowPanel(_flowLayoutPanel, _buttonDisplayMenuOptions);
                     }
@@ -149,7 +151,7 @@ namespace Presentation.Forms
                         r.ForeColor = SystemColors.ControlText;
                     }
                 }
-                ControlsHelper.DisplayControls(_flowLayoutPanel, _buttonForPickingAnswers);
+                _buttonForPickingAnswers.Enabled = true;
             }
         }
 
@@ -164,6 +166,7 @@ namespace Presentation.Forms
             _dataHandler.CheckAnswer(isAnswerCorrect);
             DisplayAnswerAttemptResult(isAnswerCorrect);
 
+            _buttonForPickingAnswers.Enabled = false;
             ControlsHelper.HideControls(_buttonForPickingAnswers);
 
             if (_dataHandler.SelectedCategory is not null)

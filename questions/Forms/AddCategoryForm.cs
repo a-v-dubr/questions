@@ -14,6 +14,7 @@ namespace Presentation.Forms
             InitializeComponent();
             _dataHandler = handler;
             DisplayMenuOptions();
+            _listBox.AutoSize = true;
         }
 
         private void DisplayMenuOptions(object? sender = default, EventArgs? e = default)

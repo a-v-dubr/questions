@@ -1,5 +1,4 @@
-﻿using Domain;
-using static Presentation.Helper.ControlMessages;
+﻿using static Presentation.Helper.ControlMessages;
 using Presentation.Helper;
 using Infrastructure;
 
@@ -9,127 +8,201 @@ namespace Presentation.Forms
     {
         private readonly DataHandler _dataHandler;
         protected RadioButton? _answerInput;
-        protected int _answerInputCounter = 0;
-        protected bool _acceptTextBoxTextChanges = false;
+        private const int _minAnswerOptionsCount = 2;
+        private const int _maxAnswerOptionsCount = 10;
 
         private bool QuestionTextAndAnswersReceived => _dataHandler.QuestionDTO is not null && _dataHandler.SelectedQuestion is null && _answerInput is null;
         private bool QuestionDTOIsReadyToMapping => _dataHandler.QuestionDTO is not null && _dataHandler.SelectedQuestion is null && _answerInput is not null;
-
 
         public AddQuestionsForm(DataHandler dataHandler)
         {
             InitializeComponent();
             _dataHandler = dataHandler;
-            DisplayMenuOptions();
-        }       
-        
-        private void DisplayMenuOptions(object? sender = null, EventArgs? e = null)
-        {
-            ResetInputValues();
-            DisplayMenuControls();            
+            _radioButtons = new();
+            _answersTable.AutoSize = true;
+            SetRequiredAnswersTextBoxes();
+        }
 
-            if (_dataHandler.SelectedQuestion is null)
+        private void SetRequiredAnswersTextBoxes()
+        {
+            for (int i = 0; i < _minAnswerOptionsCount; i++)
             {
-                _buttonAcceptQuestionText.Text = ButtonTexts.AcceptQuestionText;
-                ControlsHelper.DisplayControls(_textBoxForQuestionTitle);
+                AddAnswerTextBoxToAnswersTable();
             }
         }
 
-        private void DisplayMenuControls()
-        {
-            foreach (Control c in _flowLayoutPanel.Controls)
-            {
-                if (c == _textBoxForQuestionTitle || c == _label)
-                {
-                    ControlsHelper.DisplayControls(c);
-                }
-                else
-                {
-                    ControlsHelper.HideControls(c);
-                }
-            }
-        }
-
-       private void ResetInputValues()
+        private void ResetInputValues()
         {
             _dataHandler.ResetSelectedQuestionToDefault();
             _dataHandler.ResetSelectedCategoryToDefault();
             _dataHandler.ResetQuestionDTOToDefault();
             _answerInput = default;
-            _answerInputCounter = default;
         }
 
-        /// <summary>
-        /// Enables button for accepting text input or disables button if input is incorrect
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void OnTextBoxTextChanged(object sender, EventArgs e)
+        private void ReinitializeControls()
         {
-            if (Validator.UserInputIsValid(_textBoxForQuestionTitle.Text))
-            {
-                _acceptTextBoxTextChanges = true;
-                _buttonAcceptQuestionText.Enabled = true;
-                ControlsHelper.DisplayControls(_buttonAcceptQuestionText);
-            }
+            ControlsHelper.DisplayControls(_answersTable);
+            ControlsHelper.DisplayControls(_textBoxForQuestionTitle, _typeAnswerOptionsLabel, _handlingAnswersButtonsTable);
+            ControlsHelper.HideControls(_buttonChangeQuestionCategory, _buttonCreateAnotherQuestion);
 
-            if (!Validator.UserInputIsValid(_textBoxForQuestionTitle.Text))
+            _textBoxForQuestionTitle.Text = string.Empty;
+            _textBoxesForAnswers.Clear();
+
+            _answersTable.SuspendLayout();
+            _answersTable.Controls.Clear();
+            _answersTable.RowCount = 0;
+            _answersTable.ResumeLayout();
+
+            SetRequiredAnswersTextBoxes();
+            _labelTypeQuestionText.Text = LabelTexts.TypeQuestionText;
+        }
+
+        private void OnButtonAddNewAnswerOptionClick(object sender, EventArgs e)
+        {
+            if (_textBoxesForAnswers.Count < _maxAnswerOptionsCount)
             {
-                _acceptTextBoxTextChanges = false;
-                _buttonAcceptQuestionText.Enabled = false;
+                AddAnswerTextBoxToAnswersTable();
+                UpdateDeleteButtonsClickability();
+            }
+            else
+            {
+                var toolTip = new ToolTip();
+                toolTip.Show("Вы добавили максимальное количество вариантов", _buttonAddNewAnswerOption, _buttonAddNewAnswerOption.Width, 0, 2000);
             }
         }
 
-        /// <summary>
-        /// Handles question DTO
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        private void UpdateDeleteButtonsClickability()
+        {
+            Button? deleteButton;
+
+            for (int i = 0; i < _answersTable.RowCount; i++)
+            {
+                deleteButton = _answersTable.GetControlFromPosition(1, i) as Button;
+                if (deleteButton is not null)
+                {
+                    deleteButton.Enabled = _textBoxesForAnswers.Count > _minAnswerOptionsCount;
+                }
+            }
+        }
+
+        private void AddAnswerTextBoxToAnswersTable()
+        {
+            _answersTable.SuspendLayout();
+            _answersTable.RowCount++;
+            _answersTable.RowStyles.Add(new RowStyle());
+
+            var answerOptionTextBox = new TextBox
+            {
+                Dock = DockStyle.Fill,
+                Margin = new Padding(3, 4, 3, 4),
+                Size = new Size(399, 25),
+            };
+            _answersTable.Controls.Add(answerOptionTextBox, 0, _answersTable.RowCount - 1);
+            _answersTable.SetCellPosition(answerOptionTextBox, new TableLayoutPanelCellPosition(0, _answersTable.RowCount - 1));
+
+            var deleteButton = new Button()
+            {
+                Margin = new Padding(3, 4, 3, 4),
+                Size = new Size(29, 25),
+                Text = "X",
+                Enabled = false
+            };
+            _answersTable.Controls.Add(deleteButton, 1, _answersTable.RowCount - 1);
+            _answersTable.SetCellPosition(deleteButton, new TableLayoutPanelCellPosition(1, _answersTable.RowCount - 1));
+
+            deleteButton.Click += OnAnswerOptionDeleteButtonClick!;
+
+            _textBoxesForAnswers.Add(answerOptionTextBox);
+            _answersTable.ResumeLayout();
+        }
+
+        private void OnAnswerOptionDeleteButtonClick(object sender, EventArgs e)
+        {
+            if (sender is Button b)
+            {
+                var position = _answersTable.GetCellPosition(b);
+                int row = position.Row;
+                RemoveContentsFromAnswersTableRow(row);
+                UpdateDeleteButtonsClickability();
+            }
+        }
+
+        private void RemoveContentsFromAnswersTableRow(int row)
+        {
+            _answersTable.SuspendLayout();
+
+            DeleteAnswerTableRowContents(row);
+            RaiseRowsInAnswersTable(row);
+
+            _answersTable.RowCount--;
+            UpdateDeleteButtonsClickability();
+
+            _answersTable.ResumeLayout();
+        }
+
+        private void DeleteAnswerTableRowContents(int row)
+        {
+            for (int column = 0; column < _answersTable.ColumnCount; column++)
+            {
+                var c = _answersTable.GetControlFromPosition(column, row);
+                if (c is not null)
+                {
+                    _answersTable.Controls.Remove(c);
+                    if (c is TextBox t)
+                    {
+                        _textBoxesForAnswers.Remove(t);
+                    }
+                }
+            }
+        }
+
+        private void RaiseRowsInAnswersTable(int emptyRowIndex)
+        {
+            int nextRowIndex = emptyRowIndex + 1;
+
+            for (int i = nextRowIndex; i < _answersTable.RowCount; i++)
+            {
+                for (int column = 0; column < _answersTable.ColumnCount; column++)
+                {
+                    var c = _answersTable.GetControlFromPosition(column, i);
+                    if (c is not null)
+                    {
+                        _answersTable.Controls.Remove(c);
+                        _answersTable.Controls.Add(c, column, i - 1);
+                    }
+                }
+            }
+        }
+
         private void OnButtonAcceptQuestionTextClick(object sender, EventArgs e)
         {
-            if (_dataHandler.QuestionDTO is null)
+            if (ValidateTextBoxesContents())
             {
-                _dataHandler.SetQuestionDTO(new() { QuestionCategory = QuestionRepository.DefaultCategory, QuestionText = _textBoxForQuestionTitle.Text });
-                _textBoxForQuestionTitle.Clear();
-            }
+                ControlsHelper.HideControls(_answersTable);
 
-            if (_dataHandler.QuestionDTO is not null)
-            {
-                _label.Text = string.Format(LabelTexts.DisplayQuestionWhileAddingAnswers, _dataHandler.QuestionDTO.QuestionText);
-                _buttonAcceptQuestionText.Text = ButtonTexts.AcceptAnswerText;
+                var dto = new QuestionDTO() { QuestionCategory = QuestionRepository.DefaultCategory, QuestionText = _textBoxForQuestionTitle.Text };
+                _dataHandler.SetQuestionDTO(dto);
 
-                if (_acceptTextBoxTextChanges && _dataHandler.QuestionDTO.TryAddAnswerText(_textBoxForQuestionTitle.Text))
+                foreach (var t in _textBoxesForAnswers)
                 {
-                    CreateAnswerRadiobutton(_textBoxForQuestionTitle.Text);
-                    _textBoxForQuestionTitle.Clear();
-                    _answerInputCounter++;
+                    dto.AnswersTexts.Add(t.Text);
+                    CreateAnswerRadiobutton(t.Text);
                 }
 
-                if (_answerInputCounter >= Question.MinAnswersCount)
+                if (QuestionTextAndAnswersReceived)
                 {
-                    ControlsHelper.DisplayControls(_buttonFinishAddingAnswers);
-                    _buttonFinishAddingAnswers.Text = ButtonTexts.FinishAddingAnswers;
-                    _buttonFinishAddingAnswers.Enabled = true;
+                    DisplayAnswersOfQuestionOrDTO();
+                    ControlsHelper.HideControls(_textBoxForQuestionTitle, _typeAnswerOptionsLabel, _handlingAnswersButtonsTable);
+
+                    _radioButtons.ForEach(EnableAnswerRadioButton);
+                    _labelTypeQuestionText.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler?.QuestionDTO?.QuestionText);
+                    ControlsHelper.DisplayControlBelowOthersInFlowPanel(_flowLayoutPanel, _buttonSaveQuestionFinally);
                 }
             }
         }
 
-        /// <summary>
-        /// Creates new question instance and gets user to the form menu
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnButtonFinishAddingAnswersClick(object sender, EventArgs e)
+        private void OnButtonSaveQuestionClick(object sender, EventArgs e)
         {
-            if (QuestionTextAndAnswersReceived)
-            {
-                DisplayAnswersOfQuestionOrDTO();
-                ControlsHelper.HideControls(_textBoxForQuestionTitle, _buttonFinishAddingAnswers);
-                _radioButtons.ForEach(EnableAnswerRadioButton);
-                _label.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler?.QuestionDTO?.QuestionText);
-                _buttonAcceptQuestionText.Text = ButtonTexts.AcceptCorrectAnswerInput;
-            }
-
             if (QuestionDTOIsReadyToMapping)
             {
                 _dataHandler!.QuestionDTO!.CorrectAnswerIndex = _dataHandler.QuestionDTO.AnswersTexts.FindIndex(a => a == _answerInput?.Text);
@@ -140,21 +213,55 @@ namespace Presentation.Forms
                     _dataHandler.AddNewQuestion(question);
                     _dataHandler.SetSelectedQuestion(question);
 
-                    _label.Text = string.Format(LabelTexts.QuestionIsSavedAndAvailable, _dataHandler.SelectedQuestion?.Text);
+                    _labelTypeQuestionText.Text = string.Format(LabelTexts.QuestionIsSavedAndAvailable, _dataHandler.SelectedQuestion?.Text);
 
                     ControlsHelper.RemoveControlFromFlowLayoutPanel(_radioButtons, _flowLayoutPanel);
                     _radioButtons.Clear();
 
-                    ControlsHelper.HideControls(_buttonFinishAddingAnswers, _buttonAcceptQuestionText);
-                    ControlsHelper.DisplayControls(_buttonChangeQuestionCategory, _buttonDisplayMenu);
+                    ControlsHelper.HideControls(_buttonSaveQuestionFinally);
+                    ControlsHelper.DisplayControls(_buttonChangeQuestionCategory, _buttonCreateAnotherQuestion);
                 }
             }
         }
 
-        private void OnButtonDisplayMenu(object sender, EventArgs e)
+        private bool ValidateTextBoxesContents()
         {
-            ResetInputValues();
-            DisplayMenuOptions();
+            int errorsCount = 0;
+
+            var tb = new List<TextBox> { _textBoxForQuestionTitle };
+            tb.AddRange(_textBoxesForAnswers);
+
+            foreach (var t in tb)
+            {
+                if (string.IsNullOrWhiteSpace(t.Text))
+                {
+                    var toolTip = new ToolTip();
+                    toolTip.Show("Заполните это поле", t, t.Width, 0, 2000);
+                    errorsCount++;
+                }
+            }
+
+            tb.Remove(_textBoxForQuestionTitle);
+            if (errorsCount == 0 && !Validator.AnswerTextsAreUnique(tb))
+            {
+                var repeats = tb.GroupBy(tb => tb.Text)
+                    .Where(g => g.Count() > 1)
+                    .SelectMany(g => g.ToList())
+                    .ToList();
+
+                foreach (var r in repeats)
+                {
+                    var toolTip = new ToolTip();
+                    toolTip.Show("Ответы не должны повторяться", r, r.Width, 0, 2000);
+                }
+            }
+
+            if (errorsCount == 0 && Validator.AnswerTextsAreUnique(tb))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -178,10 +285,7 @@ namespace Presentation.Forms
                         r.ForeColor = SystemColors.ControlText;
                     }
                 }
-                _buttonFinishAddingAnswers.Text = ButtonTexts.AcceptCorrectAnswerInput;
-                _buttonFinishAddingAnswers.Enabled = true;
-                ControlsHelper.HideControls(_buttonAcceptQuestionText);
-                ControlsHelper.DisplayControls(_buttonFinishAddingAnswers);
+                _buttonSaveQuestionFinally.Enabled = true;
             }
         }
 
@@ -193,8 +297,11 @@ namespace Presentation.Forms
         private void OnButtonChangeQuestionCategoryClick(object sender, EventArgs e)
         {
             var categoriesForm = new AddCategoryForm(_dataHandler);
-            categoriesForm.FormClosing += OnFormsForEditingQuestionClosing!;
             categoriesForm.ShowDialog();
+
+            _dataHandler.Repo.RetrieveQuestionsFromDb();
+            ResetInputValues();
+            ReinitializeControls();
         }
 
         public void DisplayAnswersOfQuestionOrDTO()
@@ -207,15 +314,9 @@ namespace Presentation.Forms
                     {
                         EnableAnswerRadioButton(r);
                     }
-                    _label.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler.QuestionDTO.QuestionText);
+                    _labelTypeQuestionText.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler.QuestionDTO.QuestionText);
                 }
             }
-        }
-
-        private void OnFormsForEditingQuestionClosing(object sender, EventArgs e)
-        {
-            _dataHandler.Repo.RetrieveQuestionsFromDb();
-            DisplayMenuOptions();
         }
 
         /// <summary>
@@ -237,6 +338,12 @@ namespace Presentation.Forms
         {
             r.CheckedChanged += OnRadioButtonForAnswerCheckedChanged!;
             r.Enabled = true;
+        }
+
+        private void OnButtonCreateAnotherQuestionClick(object sender, EventArgs e)
+        {
+            ResetInputValues();
+            ReinitializeControls();
         }
     }
 }

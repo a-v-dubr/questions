@@ -10,9 +10,24 @@
             return texts.Count == texts.Distinct().ToList().Count;
         }
 
-        internal static bool UserInputIsValid(string input)
+        internal static bool AnswerTextsAreUnique(List<TextBox> textsboxes)
         {
-            return !string.IsNullOrWhiteSpace(input);
+            var texts = new List<string>();
+            foreach (var tb in textsboxes)
+            {
+                texts.Add(tb.Text);
+            }
+
+            return texts.Count == texts.Distinct().ToList().Count;
+        }
+
+        internal static bool UserInputIsValid(params string[] input)
+        {
+            if (!input.Any(string.IsNullOrWhiteSpace))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

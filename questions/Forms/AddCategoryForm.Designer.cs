@@ -46,13 +46,13 @@ namespace Presentation.Forms
             _label.AutoSize = true;
             _label.Location = new Point(3, 0);
             _label.Name = "_label";
-            _label.Size = new Size(48, 20);
+            _label.Size = new Size(163, 20);
             _label.TabIndex = 0;
-            _label.Text = LabelTexts.AvailableCategories;
+            _label.Text = "Доступные категории:";
             // 
             // _textBoxForCategoryTitle
             // 
-            _textBoxForCategoryTitle.Location = new Point(3, 113);
+            _textBoxForCategoryTitle.Location = new Point(3, 56);
             _textBoxForCategoryTitle.Name = "_textBoxForCategoryTitle";
             _textBoxForCategoryTitle.Size = new Size(322, 27);
             _textBoxForCategoryTitle.TabIndex = 1;
@@ -64,35 +64,36 @@ namespace Presentation.Forms
             _listBox.ItemHeight = 20;
             _listBox.Location = new Point(3, 23);
             _listBox.Name = "_listBox";
-            _listBox.Size = new Size(322, 84);
+            _listBox.Size = new Size(322, 24);
             _listBox.TabIndex = 2;
+            _listBox.AutoSize = true;
             _listBox.SelectedIndexChanged += OnListBoxForCategoriesSelectedIndexChanged;
             // 
             // _buttonAcceptCategory
             // 
             _buttonAcceptCategory.Enabled = false;
-            _buttonAcceptCategory.Location = new Point(3, 146);
+            _buttonAcceptCategory.Location = new Point(3, 89);
             _buttonAcceptCategory.Name = "_buttonAcceptCategory";
-            _buttonAcceptCategory.Size = new Size(322, 28);
+            _buttonAcceptCategory.Size = new Size(322, 40);
             _buttonAcceptCategory.TabIndex = 3;
-            _buttonAcceptCategory.Text = ButtonTexts.AcceptAvailableCategory;
+            _buttonAcceptCategory.Text = "Выбрать эту категорию";
             _buttonAcceptCategory.Visible = false;
             _buttonAcceptCategory.Click += OnButtonAcceptCategoryClick;
             // 
             // _buttonCreateNewCategory
             // 
-            _buttonCreateNewCategory.Location = new Point(3, 180);
+            _buttonCreateNewCategory.Location = new Point(3, 135);
             _buttonCreateNewCategory.Name = "_buttonCreateNewCategory";
-            _buttonCreateNewCategory.Size = new Size(322, 28);
+            _buttonCreateNewCategory.Size = new Size(322, 40);
             _buttonCreateNewCategory.TabIndex = 4;
-            _buttonCreateNewCategory.Text = ButtonTexts.CreateNewCategory;
+            _buttonCreateNewCategory.Text = "Создать новую категорию";
             _buttonCreateNewCategory.Click += OnButtonCreateCategoryClick;
             // 
             // _buttonReturnToAddingQuestions
             // 
-            _buttonReturnToAddingQuestions.Location = new Point(3, 214);
+            _buttonReturnToAddingQuestions.Location = new Point(3, 181);
             _buttonReturnToAddingQuestions.Name = "_buttonReturnToAddingQuestions";
-            _buttonReturnToAddingQuestions.Size = new Size(322, 28);
+            _buttonReturnToAddingQuestions.Size = new Size(322, 40);
             _buttonReturnToAddingQuestions.TabIndex = 5;
             _buttonReturnToAddingQuestions.Text = "Вернуться к вопросам";
             _buttonReturnToAddingQuestions.Visible = false;
@@ -109,15 +110,19 @@ namespace Presentation.Forms
             _flowLayoutPanel.FlowDirection = FlowDirection.TopDown;
             _flowLayoutPanel.Location = new Point(1, 1);
             _flowLayoutPanel.Name = "_flowLayoutPanel";
-            _flowLayoutPanel.Size = new Size(526, 381);
+            _flowLayoutPanel.Size = new Size(376, 381);
             _flowLayoutPanel.TabIndex = 0;
             // 
             // AddCategoryForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(390, 397);
             Controls.Add(_flowLayoutPanel);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            StartPosition = FormStartPosition.CenterParent;
             Name = "AddCategoryForm";
             Text = "Выбор категории";
             _flowLayoutPanel.ResumeLayout(false);

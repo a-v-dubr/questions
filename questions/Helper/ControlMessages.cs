@@ -29,7 +29,7 @@
         public static class LabelTexts
         {
             public const string AvailableCategoriesAndQuestions = "Доступные вопросы:";
-            public const string NoQuestionsAvailable = "Доступных вопросов нет. Вы можете добавить новый вопрос.";
+            public const string NoQuestionsAvailable = "Доступных вопросов нет.\nВы можете добавить новый вопрос.";
             public readonly static string ChooseAnswer = "Укажите ответ на вопрос:\n{0}";
             public readonly static string NoMoreAvailableQuestionsInCategory = "\n\nВы ответили на все доступные вопросы в категории \"{0}\".";
             public const string CorrectAnswer = "Вы дали правильный ответ!";
