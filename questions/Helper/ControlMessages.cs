@@ -58,5 +58,12 @@
             public const string AddQuestionsForm = "Добавление новых вопросов";
             public const string AddCategoryForm = "Выбор категории";
         }
+
+        public static class ToolTipsTexts
+        {
+            public const string NoMoreAnswerOptionsAvailable = "Вы добавили максимальное количество вариантов";
+            public const string TextBoxContentsIsNotFound = "Заполните это поле";
+            public const string AnswerOptionCannotBeEqual = "Ответы не должны повторяться";
+        }
     }
 }

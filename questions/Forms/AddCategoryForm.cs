@@ -92,7 +92,7 @@ namespace Presentation.Forms
             {
                 _label.Text = string.Format(LabelTexts.TypeCategoryTitle, _dataHandler.SelectedQuestion.Text);
 
-                if (!Validator.UserInputIsValid(_textBoxForCategoryTitle.Text))
+                if (string.IsNullOrWhiteSpace(_textBoxForCategoryTitle.Text))
                 {
                     _buttonCreateNewCategory.Text = ButtonTexts.AcceptCategoryTitle;
                     _buttonCreateNewCategory.Enabled = false;
@@ -101,7 +101,7 @@ namespace Presentation.Forms
                 else
                 {
                     Category? category;
-                    if (_dataHandler.Categories.Any(c => c.Title == _textBoxForCategoryTitle.Text))
+                    if (_dataHandler.Categories.Exists(c => c.Title == _textBoxForCategoryTitle.Text))
                     {
                         category = _dataHandler.Categories.SingleOrDefault(c => c.Title == _textBoxForCategoryTitle.Text);
                     }
@@ -135,7 +135,7 @@ namespace Presentation.Forms
         /// <param name="e"></param>
         public void OnTextBoxTextChanged(object sender, EventArgs e)
         {
-            if (Validator.UserInputIsValid(_textBoxForCategoryTitle.Text))
+            if (!string.IsNullOrWhiteSpace(_textBoxForCategoryTitle.Text))
             {
                 _acceptTextBoxTextChanges = true;
                 _buttonCreateNewCategory.Enabled = true;

@@ -10,8 +10,5 @@
     <Compile Update="Forms\MenuForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\Test.cs">
-      <SubType>Form</SubType>
-    </Compile>
   </ItemGroup>
 </Project>

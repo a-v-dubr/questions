@@ -18,8 +18,7 @@ namespace Presentation.Forms
         {
             InitializeComponent();
             _dataHandler = dataHandler;
-            _radioButtons = new();
-            _answersTable.AutoSize = true;
+
             SetRequiredAnswersTextBoxes();
         }
 
@@ -27,7 +26,7 @@ namespace Presentation.Forms
         {
             for (int i = 0; i < _minAnswerOptionsCount; i++)
             {
-                AddAnswerTextBoxToAnswersTable();
+                AddAnswerControlsToAnswersTable();
             }
         }
 
@@ -41,10 +40,21 @@ namespace Presentation.Forms
 
         private void ReinitializeControls()
         {
-            ControlsHelper.DisplayControls(_answersTable);
-            ControlsHelper.DisplayControls(_textBoxForQuestionTitle, _typeAnswerOptionsLabel, _handlingAnswersButtonsTable);
-            ControlsHelper.HideControls(_buttonChangeQuestionCategory, _buttonCreateAnotherQuestion);
+            DisplayControlsForCreatingQuestion();
+            ClearControlsForUserInput();
+            SetRequiredAnswersTextBoxes();
 
+            _labelTypeQuestionText.Text = LabelTexts.TypeQuestionText;
+        }
+
+        private void DisplayControlsForCreatingQuestion()
+        {
+            ControlsHelper.DisplayControls(_answersTable, _textBoxForQuestionTitle, _labelTypeAnswerOptions, _handlingAnswersButtonsTable);
+            ControlsHelper.HideControls(_buttonChangeQuestionCategory, _buttonCreateAnotherQuestion);
+        }
+
+        private void ClearControlsForUserInput()
+        {
             _textBoxForQuestionTitle.Text = string.Empty;
             _textBoxesForAnswers.Clear();
 
@@ -52,22 +62,20 @@ namespace Presentation.Forms
             _answersTable.Controls.Clear();
             _answersTable.RowCount = 0;
             _answersTable.ResumeLayout();
-
-            SetRequiredAnswersTextBoxes();
-            _labelTypeQuestionText.Text = LabelTexts.TypeQuestionText;
         }
+
 
         private void OnButtonAddNewAnswerOptionClick(object sender, EventArgs e)
         {
             if (_textBoxesForAnswers.Count < _maxAnswerOptionsCount)
             {
-                AddAnswerTextBoxToAnswersTable();
+                AddAnswerControlsToAnswersTable();
                 UpdateDeleteButtonsClickability();
             }
             else
             {
                 var toolTip = new ToolTip();
-                toolTip.Show("Вы добавили максимальное количество вариантов", _buttonAddNewAnswerOption, _buttonAddNewAnswerOption.Width, 0, 2000);
+                toolTip.Show(ToolTipsTexts.NoMoreAnswerOptionsAvailable, _buttonAddNewAnswerOption, _buttonAddNewAnswerOption.Width, 0, 2000);
             }
         }
 
@@ -85,12 +93,21 @@ namespace Presentation.Forms
             }
         }
 
-        private void AddAnswerTextBoxToAnswersTable()
+        private void AddAnswerControlsToAnswersTable()
         {
             _answersTable.SuspendLayout();
+
             _answersTable.RowCount++;
             _answersTable.RowStyles.Add(new RowStyle());
 
+            AddAnswerOptionTextBoxToAnswerTable();
+            AddDeleteButtonToAnswerTable();
+
+            _answersTable.ResumeLayout();
+        }
+
+        private void AddAnswerOptionTextBoxToAnswerTable()
+        {
             var answerOptionTextBox = new TextBox
             {
                 Dock = DockStyle.Fill,
@@ -99,7 +116,11 @@ namespace Presentation.Forms
             };
             _answersTable.Controls.Add(answerOptionTextBox, 0, _answersTable.RowCount - 1);
             _answersTable.SetCellPosition(answerOptionTextBox, new TableLayoutPanelCellPosition(0, _answersTable.RowCount - 1));
+            _textBoxesForAnswers.Add(answerOptionTextBox);
+        }
 
+        private void AddDeleteButtonToAnswerTable()
+        {
             var deleteButton = new Button()
             {
                 Margin = new Padding(3, 4, 3, 4),
@@ -109,11 +130,7 @@ namespace Presentation.Forms
             };
             _answersTable.Controls.Add(deleteButton, 1, _answersTable.RowCount - 1);
             _answersTable.SetCellPosition(deleteButton, new TableLayoutPanelCellPosition(1, _answersTable.RowCount - 1));
-
             deleteButton.Click += OnAnswerOptionDeleteButtonClick!;
-
-            _textBoxesForAnswers.Add(answerOptionTextBox);
-            _answersTable.ResumeLayout();
         }
 
         private void OnAnswerOptionDeleteButtonClick(object sender, EventArgs e)
@@ -183,20 +200,21 @@ namespace Presentation.Forms
                 var dto = new QuestionDTO() { QuestionCategory = QuestionRepository.DefaultCategory, QuestionText = _textBoxForQuestionTitle.Text };
                 _dataHandler.SetQuestionDTO(dto);
 
-                foreach (var t in _textBoxesForAnswers)
+                var texts = from tb in _textBoxesForAnswers select tb.Text;
+                foreach (string t in texts)
                 {
-                    dto.AnswersTexts.Add(t.Text);
-                    CreateAnswerRadiobutton(t.Text);
+                    dto.AnswersTexts.Add(t);
+                    CreateAnswerRadiobutton(t);
                 }
 
                 if (QuestionTextAndAnswersReceived)
                 {
                     DisplayAnswersOfQuestionOrDTO();
-                    ControlsHelper.HideControls(_textBoxForQuestionTitle, _typeAnswerOptionsLabel, _handlingAnswersButtonsTable);
+                    ControlsHelper.HideControls(_textBoxForQuestionTitle, _labelTypeAnswerOptions, _handlingAnswersButtonsTable);
 
                     _radioButtons.ForEach(EnableAnswerRadioButton);
                     _labelTypeQuestionText.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler?.QuestionDTO?.QuestionText);
-                    ControlsHelper.DisplayControlBelowOthersInFlowPanel(_flowLayoutPanel, _buttonSaveQuestionFinally);
+                    _flowLayoutPanel.DisplayControlBelowOthersInFlowPanel(_buttonSaveQuestionFinally);
                 }
             }
         }
@@ -215,7 +233,7 @@ namespace Presentation.Forms
 
                     _labelTypeQuestionText.Text = string.Format(LabelTexts.QuestionIsSavedAndAvailable, _dataHandler.SelectedQuestion?.Text);
 
-                    ControlsHelper.RemoveControlFromFlowLayoutPanel(_radioButtons, _flowLayoutPanel);
+                    _flowLayoutPanel.RemoveControlFromFlowLayoutPanel(_radioButtons);
                     _radioButtons.Clear();
 
                     ControlsHelper.HideControls(_buttonSaveQuestionFinally);
@@ -226,42 +244,55 @@ namespace Presentation.Forms
 
         private bool ValidateTextBoxesContents()
         {
-            int errorsCount = 0;
-
             var tb = new List<TextBox> { _textBoxForQuestionTitle };
             tb.AddRange(_textBoxesForAnswers);
 
-            foreach (var t in tb)
+            return UserInputsAreNotEmpty(tb) && AnswerTextsAreUnique(tb);
+        }
+
+        private static bool UserInputsAreNotEmpty(List<TextBox> tb)
+        {
+            var emptyTextBoxes = tb.Where(tb => string.IsNullOrWhiteSpace(tb.Text));
+            if (emptyTextBoxes.Any())
             {
-                if (string.IsNullOrWhiteSpace(t.Text))
+                foreach (var emptyTextBox in emptyTextBoxes)
                 {
-                    var toolTip = new ToolTip();
-                    toolTip.Show("Заполните это поле", t, t.Width, 0, 2000);
-                    errorsCount++;
+                    DisplayEmptyTextBoxToolTip(emptyTextBox);
                 }
+                return false;
             }
+            return true;
+        }
 
+        private bool AnswerTextsAreUnique(List<TextBox> tb)
+        {
             tb.Remove(_textBoxForQuestionTitle);
-            if (errorsCount == 0 && !Validator.AnswerTextsAreUnique(tb))
-            {
-                var repeats = tb.GroupBy(tb => tb.Text)
-                    .Where(g => g.Count() > 1)
-                    .SelectMany(g => g.ToList())
-                    .ToList();
+            var repeats = tb.GroupBy(tb => tb.Text)
+                        .Where(g => g.Count() > 1)
+                        .SelectMany(g => g.ToList())
+                        .ToList();
 
+            if (repeats.Any())
+            {
                 foreach (var r in repeats)
                 {
-                    var toolTip = new ToolTip();
-                    toolTip.Show("Ответы не должны повторяться", r, r.Width, 0, 2000);
+                    DisplayRepeatedAnswerTextsToolTip(r);
                 }
+                return false;
             }
+            return true;
+        }
 
-            if (errorsCount == 0 && Validator.AnswerTextsAreUnique(tb))
-            {
-                return true;
-            }
+        private static void DisplayEmptyTextBoxToolTip(TextBox emptyTextBox)
+        {
+            var toolTip = new ToolTip();
+            toolTip.Show(ToolTipsTexts.TextBoxContentsIsNotFound, emptyTextBox, emptyTextBox.Width, 0, 2000);
+        }
 
-            return false;
+        private static void DisplayRepeatedAnswerTextsToolTip(TextBox repeatedAnswerTextBox)
+        {
+            var toolTip = new ToolTip();
+            toolTip.Show(ToolTipsTexts.AnswerOptionCannotBeEqual, repeatedAnswerTextBox, repeatedAnswerTextBox.Width, 0, 2000);
         }
 
         /// <summary>
@@ -308,14 +339,11 @@ namespace Presentation.Forms
         {
             if (_dataHandler.QuestionDTO is not null)
             {
-                if (Validator.AnswerTextsAreUnique(_dataHandler.QuestionDTO.AnswersTexts))
+                foreach (var r in _radioButtons)
                 {
-                    foreach (var r in _radioButtons)
-                    {
-                        EnableAnswerRadioButton(r);
-                    }
-                    _labelTypeQuestionText.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler.QuestionDTO.QuestionText);
+                    EnableAnswerRadioButton(r);
                 }
+                _labelTypeQuestionText.Text = string.Format(LabelTexts.ChooseCorrectAnswer, _dataHandler.QuestionDTO.QuestionText);
             }
         }
 

@@ -33,16 +33,16 @@
             _textBoxForQuestionTitle = new TextBox();
             _buttonChangeQuestionCategory = new Button();
             _flowLayoutPanel = new FlowLayoutPanel();
-            _typeAnswerOptionsLabel = new Label();
+            _labelTypeAnswerOptions = new Label();
             _answersTable = new TableLayoutPanel();
             _handlingAnswersButtonsTable = new TableLayoutPanel();
             _buttonAddNewAnswerOption = new Button();
             _buttonAcceptQuestionText = new Button();
             _buttonSaveQuestionFinally = new Button();
-            _textBoxForRequiredAnswer1 = new TextBox();
-            _textBoxForRequiredAnswer2 = new TextBox();
+            _textBoxesForAnswers = new List<TextBox>();
             _toolTip = new ToolTip(components);
             _buttonCreateAnotherQuestion = new Button();
+            _radioButtons = new List<RadioButton>();
             _flowLayoutPanel.SuspendLayout();
             _handlingAnswersButtonsTable.SuspendLayout();
             SuspendLayout();
@@ -78,7 +78,7 @@
             // 
             _flowLayoutPanel.Controls.Add(_labelTypeQuestionText);
             _flowLayoutPanel.Controls.Add(_textBoxForQuestionTitle);
-            _flowLayoutPanel.Controls.Add(_typeAnswerOptionsLabel);
+            _flowLayoutPanel.Controls.Add(_labelTypeAnswerOptions);
             _flowLayoutPanel.Controls.Add(_answersTable);
             _flowLayoutPanel.Controls.Add(_handlingAnswersButtonsTable);
             _flowLayoutPanel.Controls.Add(_buttonChangeQuestionCategory);
@@ -92,19 +92,20 @@
             // 
             // _typeAnswerOptionsLabel
             // 
-            _typeAnswerOptionsLabel.AutoSize = true;
-            _typeAnswerOptionsLabel.Location = new Point(3, 73);
-            _typeAnswerOptionsLabel.Margin = new Padding(3, 10, 3, 0);
-            _typeAnswerOptionsLabel.Name = "_typeAnswerOptionsLabel";
-            _typeAnswerOptionsLabel.Size = new Size(198, 20);
-            _typeAnswerOptionsLabel.TabIndex = 6;
-            _typeAnswerOptionsLabel.Text = "Введите варианты ответов:";
+            _labelTypeAnswerOptions.AutoSize = true;
+            _labelTypeAnswerOptions.Location = new Point(3, 73);
+            _labelTypeAnswerOptions.Margin = new Padding(3, 10, 3, 0);
+            _labelTypeAnswerOptions.Name = "_typeAnswerOptionsLabel";
+            _labelTypeAnswerOptions.Size = new Size(198, 20);
+            _labelTypeAnswerOptions.TabIndex = 6;
+            _labelTypeAnswerOptions.Text = "Введите варианты ответов:";
             // 
             // _answersTable
             // 
             _answersTable.ColumnCount = 2;
             _answersTable.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 400F));
             _answersTable.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 40F));
+            _answersTable.AutoSize = true;
             _answersTable.Location = new Point(3, 96);
             _answersTable.Name = "_answersTable";
             _answersTable.Size = new Size(485, 32);
@@ -159,24 +160,6 @@
             _buttonSaveQuestionFinally.Visible = false;
             _buttonSaveQuestionFinally.Click += OnButtonSaveQuestionClick;
             // 
-            // _textBoxForRequiredAnswer1
-            // 
-            _textBoxForRequiredAnswer1.Dock = DockStyle.Fill;
-            _textBoxForRequiredAnswer1.Location = new Point(3, 24);
-            _textBoxForRequiredAnswer1.Margin = new Padding(3, 4, 3, 4);
-            _textBoxForRequiredAnswer1.Name = "_textBoxForRequiredAnswer1";
-            _textBoxForRequiredAnswer1.Size = new Size(405, 27);
-            _textBoxForRequiredAnswer1.TabIndex = 2;
-            // 
-            // _textBoxForRequiredAnswer2
-            // 
-            _textBoxForRequiredAnswer2.Dock = DockStyle.Fill;
-            _textBoxForRequiredAnswer2.Location = new Point(3, 59);
-            _textBoxForRequiredAnswer2.Margin = new Padding(3, 4, 3, 4);
-            _textBoxForRequiredAnswer2.Name = "_textBoxForRequiredAnswer2";
-            _textBoxForRequiredAnswer2.Size = new Size(405, 27);
-            _textBoxForRequiredAnswer2.TabIndex = 3;
-            // 
             // _createAnotherQuestion
             // 
             _buttonCreateAnotherQuestion.Location = new Point(3, 278);
@@ -212,13 +195,11 @@
         private Label _labelTypeQuestionText;
         private TextBox _textBoxForQuestionTitle;
         private Button _buttonChangeQuestionCategory;
-        private List<System.Windows.Forms.RadioButton> _radioButtons;
-        private List<TextBox> _textBoxesForAnswers = new();
-        private TextBox _textBoxForRequiredAnswer1;
-        private TextBox _textBoxForRequiredAnswer2;
+        private List<RadioButton> _radioButtons;
+        private List<TextBox> _textBoxesForAnswers;
         private Button _buttonSaveQuestionFinally;
         private ToolTip _toolTip;
-        private Label _typeAnswerOptionsLabel;
+        private Label _labelTypeAnswerOptions;
         private TableLayoutPanel _answersTable;
         private TableLayoutPanel _handlingAnswersButtonsTable;
         private Button _buttonAddNewAnswerOption;
