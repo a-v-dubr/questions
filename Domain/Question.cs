@@ -24,7 +24,6 @@ namespace Domain
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; private set; }
         public string Text { get; private set; }
-        [NotMapped]
         public Repetitions RepeateInPeriod { get; private set; } = Repetitions.EnableAsCreated;
         public DateTime AvailableAt { get; private set; }
         public List<Answer> Answers { get; private set; } = new();
@@ -41,6 +40,7 @@ namespace Domain
             QuestionCategory = category;
             Text = questionText;
             AvailableAt = DateTime.Now;
+            RepeateInPeriod = Repetitions.EnableAsCreated;
             Enabled = true;
         }
 #pragma warning restore
@@ -127,7 +127,12 @@ namespace Domain
         /// <returns></returns>
         public static Question CreateQuestion(Category category, string questionText)
         {
-            return new(category, questionText);
+            var question = new Question(category, questionText)
+            {
+                RepeateInPeriod = Repetitions.EnableAsCreated
+            };
+
+            return question;
         }
 
         /// <summary>

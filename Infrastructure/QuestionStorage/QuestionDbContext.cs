@@ -30,5 +30,10 @@ namespace Infrastructure
         {
             optionsBuilder.UseSqlite(_connectionString);
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Question>().Property(p => p.RepeateInPeriod).HasConversion<int>().HasDefaultValue(Question.Repetitions.EnableAsCreated);
+        }
     }
 }
